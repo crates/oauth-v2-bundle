@@ -1,0 +1,66 @@
+keboola_o_auth_homepage:
+    path:     /hello/{name}
+    defaults: { _controller: KeboolaOAuthV2Bundle:Default:index }
+
+keboola_o_auth_test:
+    path: /test
+    defaults: { _controller: KeboolaOAuthV2Bundle:V10:test }
+
+keboola_o_auth_oauth1:
+    path: /auth10
+    defaults: { _controller: KeboolaOAuthV2Bundle:V10:getOAuth }
+    methods:  [POST]
+
+keboola_o_auth_oauth_external1:
+    path: /auth10
+    defaults: { _controller: KeboolaOAuthV2Bundle:V10:externalAuth }
+    methods:  [GET]
+
+keboola_o_auth_oauth_callback1:
+    path: /auth10-callback
+    defaults: { _controller: KeboolaOAuthV2Bundle:V10:getOAuthCallback }
+
+keboola_o_auth_oauth2:
+    path: /auth20
+    defaults: { _controller: KeboolaOAuthV2Bundle:V20:getOAuth }
+    methods:  [POST]
+
+keboola_o_auth_oauth_external2:
+    path: /auth20
+    defaults: { _controller: KeboolaOAuthV2Bundle:V20:externalAuth }
+    methods:  [GET]
+
+keboola_o_auth_oauth_callback2:
+    path: /auth20-callback
+    defaults: { _controller: KeboolaOAuthV2Bundle:V20:getOAuthCallback }
+
+keboola_o_auth_get_credentials_old:
+    path: /get/{api}/{id}
+    defaults: { _controller: KeboolaOAuthV2Bundle:Credentials:get }
+
+keboola_o_auth_get_credentials:
+    path: /credentials/{api}/{id}
+    defaults: { _controller: KeboolaOAuthV2Bundle:Credentials:get }
+    methods: [GET, POST]
+
+keboola_o_auth_delete_credentials:
+    path: /credentials/{api}/{id}
+    defaults: { _controller: KeboolaOAuthV2Bundle:Credentials:delete }
+    methods: [DELETE]
+
+keboola_o_auth_list_credentials:
+    path: /credentials/{api}
+    defaults: { _controller: KeboolaOAuthV2Bundle:Credentials:list }
+    methods: [GET]
+
+keboola_o_auth_list_apis:
+    path: /manage
+    defaults: { _controller: KeboolaOAuthV2Bundle:Manage:list }
+    methods: [GET]
+
+keboola_o_auth_add_api:
+    path: /manage
+    defaults: { _controller: KeboolaOAuthV2Bundle:Manage:add }
+    methods: [POST]
+
+

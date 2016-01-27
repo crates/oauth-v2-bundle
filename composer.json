@@ -1,0 +1,42 @@
+{
+    "name": "keboola\/oauthv2bundle",
+    "type": "symfony-bundle",
+    "description": "OAuth V2 bundle",
+    "keywords": [],
+    "authors": [],
+    "repositories": [],
+    "require": {
+        "keboola/php-encryption": "~0.2",
+        "keboola/syrup": "~2.3",
+        "keboola/kbc-manage-api-php-client": "^1.3",
+        "keboola/oauth": "@dev",
+        "keboola/php-utils": "^0.1.20",
+        "guzzlehttp/guzzle": "^6.1"
+    },
+    "require-dev": {
+        "phpunit\/phpunit": "3.7.*"
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "Keboola\\Syrup\\DeploymentHandler\\ScriptHandler::getParameters",
+            "Keboola\\Syrup\\DeploymentHandler\\ScriptHandler::getSharedParameters",            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap"
+        ],
+        "post-update-cmd": [
+            "Keboola\\Syrup\\DeploymentHandler\\ScriptHandler::getParameters",
+            "Keboola\\Syrup\\DeploymentHandler\\ScriptHandler::getSharedParameters",            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap",
+            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::clearCache"
+        ]
+    },
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-0": {
+            "Keboola\\OAuthV2Bundle": ""
+        }
+    },
+    "target-dir": "Keboola\/OAuthV2Bundle",
+    "extra": {
+        "symfony-app-dir": "vendor\/keboola\/syrup\/app",
+        "symfony-web-dir": "vendor\/keboola\/syrup\/web",
+        "syrup-app-name": "oauth-v2"
+    }
+}
