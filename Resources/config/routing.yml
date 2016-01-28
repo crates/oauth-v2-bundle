@@ -68,4 +68,9 @@ keboola_o_auth_add_api:
     defaults: { _controller: KeboolaOAuthV2Bundle:Manage:add }
     methods: [POST]
 
+keboola_o_auth_delete_api:
+    path: /manage/{componentId}
+    defaults: { _controller: KeboolaOAuthV2Bundle:Manage:delete }
+    methods: [DELETE]
+
 

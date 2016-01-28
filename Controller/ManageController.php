@@ -95,6 +95,34 @@ class ManageController extends ApiController
 	}
 
 	/**
+	 * Delete existing component record
+	 */
+	public function deleteAction($componentId, Request $request)
+	{
+        if (!$this->checkScope('oauth:manage', $request)) {
+            throw new UserException("Insufficient permissions to add API");
+        }
+
+        $sapiToken = $this->storageApi->verifyToken();
+
+        $conn = $this->getConnection();
+
+        try {
+            $result = $conn->delete('consumers', ['component_id' => $componentId]);
+        } catch(\Exception $e) {
+            throw new UserException("Unknown error deleting consumer '{$componentId}'.", $e);
+        }
+
+        if ($result === 0) {
+            throw new UserException("Delete of consumer '{$componentId}' failed: ComponentID doesn't exist in OAuth API.");
+        } elseif ($result === 1) {
+            return new JsonResponse([], 204, $this->defaultResponseHeaders);
+        }
+
+        throw new UserException("Unknown error deleting consumer '{$componentId}'.");
+	}
+
+	/**
 	 * @param string $secret String to encrypt
 	 * @param string $componentId
      * @param string $token SAPI token
