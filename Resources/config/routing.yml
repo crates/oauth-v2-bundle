@@ -73,4 +73,10 @@ keboola_o_auth_delete_api:
     defaults: { _controller: KeboolaOAuthV2Bundle:Manage:delete }
     methods: [DELETE]
 
+### TEST DELETE
+keboola_o_auth_api_auth:
+    path: /authorize/{componentId}
+    defaults: { _controller: KeboolaOAuthV2Bundle:Manage:auth }
+    methods: [GET]
+
 

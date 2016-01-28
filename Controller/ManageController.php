@@ -12,6 +12,7 @@ use Keboola\ManageApi\Client,
     Keboola\ManageApi\ClientException;
 use GuzzleHttp\Client as Guzzle;
 use Keboola\OAuthV2Bundle\Encryption\SelfEncryption;
+use Keboola\Syrup\Encryption\BaseWrapper;
 
 class ManageController extends ApiController
 {
@@ -20,6 +21,23 @@ class ManageController extends ApiController
         "Access-Control-Allow-Origin" => "*",
         "Connection" => "close"
     ];
+
+    /**
+     * @todo the load into a BASE controller / separate class initialized with manage token
+     * + key to load details for all APIs (1.0 and 2.0)
+     * @test
+     */
+//     public function authAction($componentId, Request $request)
+//     {
+//         $token = $this->storageApi->verifyToken();
+//
+//         $conn = $this->getConnection();
+//
+//         $detail = $this->getConnection()->fetchAssoc("SELECT `component_id`, `app_key`, `app_secret`, `oauth_version` FROM `consumers` WHERE `component_id` = :componentId", ['componentId' => $componentId]);
+//
+//         $secret = $this->getEncryptor()->decrypt($detail['app_secret']);
+//
+//     }
 
 	/**
 	 * List all supported consumers
@@ -30,7 +48,10 @@ class ManageController extends ApiController
 
 		$conn = $this->getConnection();
 
-		$consumers = $this->getConsumers();
+		$consumers = $conn->fetchAll(
+            "SELECT `component_id`, `app_key`, `friendly_name`, `oauth_version`
+            FROM `consumers`"
+        );
 
 		return new JsonResponse($consumers, 200, $this->defaultResponseHeaders);
 	}
@@ -103,6 +124,9 @@ class ManageController extends ApiController
             throw new UserException("Insufficient permissions to add API");
         }
 
+        /**
+         * UNUSED -> preExecute?
+         */
         $sapiToken = $this->storageApi->verifyToken();
 
         $conn = $this->getConnection();
@@ -157,7 +181,7 @@ class ManageController extends ApiController
      */
     protected function encryptBySelf($secret)
     {
-        return $this->getSelfEncryption()->encrypt($secret);
+        return $this->getEncryptor()->encrypt($secret);
     }
 
     /**
@@ -235,10 +259,13 @@ class ManageController extends ApiController
         return is_array($token['scopes']) && in_array($scope, $token['scopes']);
 	}
 
-	protected function getConsumers()
-	{
-		return $this->getConnection()->fetchAll("SELECT `component_id`, `app_key`, `friendly_name`, `oauth_version` FROM `consumers`");
-	}
+    /**
+     * @return BaseWrapper
+     */
+    protected function getEncryptor()
+    {
+        return $this->container->get('syrup.encryption.base_wrapper');
+    }
 
 	/**
 	 * @return \Doctrine\DBAL\Connection
@@ -248,8 +275,8 @@ class ManageController extends ApiController
 		return $this->getDoctrine()->getConnection('oauth_providers');
 	}
 
-	protected function getSelfEncryption()
-	{
-        return new SelfEncryption($this->container->getParameter('oauth.defuse_encryption_key'));
-	}
+// 	protected function getSelfEncryption()
+// 	{
+//         return new SelfEncryption($this->container->getParameter('oauth.defuse_encryption_key'));
+// 	}
 }
