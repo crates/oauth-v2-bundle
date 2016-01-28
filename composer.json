@@ -6,7 +6,7 @@
     "authors": [],
     "repositories": [],
     "require": {
-        "keboola/php-encryption": "~0.2",
+        "defuse/php-encryption": "^1.2",
         "keboola/syrup": "~2.3",
         "keboola/kbc-manage-api-php-client": "^1.3",
         "keboola/oauth": "@dev",

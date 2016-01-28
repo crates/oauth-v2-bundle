@@ -58,6 +58,11 @@ keboola_o_auth_list_apis:
     defaults: { _controller: KeboolaOAuthV2Bundle:Manage:list }
     methods: [GET]
 
+keboola_o_auth_api_detail:
+    path: /manage/{componentId}
+    defaults: { _controller: KeboolaOAuthV2Bundle:Manage:get }
+    methods: [GET]
+
 keboola_o_auth_add_api:
     path: /manage
     defaults: { _controller: KeboolaOAuthV2Bundle:Manage:add }
