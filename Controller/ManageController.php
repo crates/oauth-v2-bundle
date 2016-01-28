@@ -10,8 +10,7 @@ use	Symfony\Component\HttpFoundation\Response,
 use	Keboola\Utils\Utils;
 use Keboola\ManageApi\Client,
     Keboola\ManageApi\ClientException;
-use GuzzleHttp\Client as Guzzle;
-use Keboola\OAuthV2Bundle\Encryption\SelfEncryption;
+use Keboola\OAuthV2Bundle\Encryption\ByAppEncryption;
 use Keboola\Syrup\Encryption\BaseWrapper;
 
 class ManageController extends ApiController
@@ -96,7 +95,7 @@ class ManageController extends ApiController
         $conn = $this->getConnection();
 
         $api = $this->validateApiConfig(Utils::json_decode($request->getContent()));
-        $api->app_secret_docker = $this->encryptByApp($api->app_secret, $api->component_id, $sapiToken['token']);
+        $api->app_secret_docker = ByAppEncryption::encrypt($api->app_secret, $api->component_id, $sapiToken['token']);
         $api->app_secret = $this->encryptBySelf($api->app_secret);
 
         try {
@@ -145,35 +144,6 @@ class ManageController extends ApiController
 
         throw new UserException("Unknown error deleting consumer '{$componentId}'.");
 	}
-
-	/**
-	 * @param string $secret String to encrypt
-	 * @param string $componentId
-     * @param string $token SAPI token
-	 * @return string Encrypted $secret by application $componentId
-	 */
-    protected function encryptByApp($secret, $componentId, $token)
-    {
-        $url = "https://syrup.keboola.com/docker/{$componentId}/encrypt";
-
-        $client = new Guzzle();
-
-        try {
-            $result = $client->post(
-                $url,
-                [
-                    'headers' => [
-                        'X-StorageApi-Token' => $token,
-                        'Content-Type' => 'text/plain'
-                    ]
-                ]
-            );
-        } catch(\GuzzleHttp\Exception\ClientException $e) {
-            throw new UserException("Component based encryption of the app secret failed: " . $e->getMessage());
-        }
-
-        return (string) $result->getBody();
-    }
 
     /**
      * @param string $secret
