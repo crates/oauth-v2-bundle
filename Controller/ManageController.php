@@ -3,7 +3,8 @@
 namespace Keboola\OAuthV2Bundle\Controller;
 
 use	Keboola\Syrup\Controller\ApiController,
-	Keboola\Syrup\Exception\UserException;
+	Keboola\Syrup\Exception\UserException,
+    Keboola\Syrup\Encryption\BaseWrapper;
 use	Symfony\Component\HttpFoundation\Response,
 	Symfony\Component\HttpFoundation\JsonResponse,
 	Symfony\Component\HttpFoundation\Request;
@@ -11,7 +12,6 @@ use	Keboola\Utils\Utils;
 use Keboola\ManageApi\Client,
     Keboola\ManageApi\ClientException;
 use Keboola\OAuthV2Bundle\Encryption\ByAppEncryption;
-use Keboola\Syrup\Encryption\BaseWrapper;
 
 class ManageController extends ApiController
 {
