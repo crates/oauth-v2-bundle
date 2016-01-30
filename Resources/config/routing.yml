@@ -13,6 +13,11 @@ keboola_o_auth_list_credentials:
     defaults: { _controller: KeboolaOAuthV2Bundle:Credentials:list }
     methods: [GET]
 
+#keboola_o_auth_list_project_credentials:
+    #path: /credentials
+    #defaults: { _controller: KeboolaOAuthV2Bundle:Credentials:listAll }
+    #methods: [GET]
+
 keboola_o_auth_list_apis:
     path: /manage
     defaults: { _controller: KeboolaOAuthV2Bundle:Manage:list }

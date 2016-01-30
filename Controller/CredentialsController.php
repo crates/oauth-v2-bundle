@@ -42,7 +42,7 @@ class CredentialsController extends ApiController
 		return new JsonResponse(
             [
                 'id' => $id,
-                'authorized_for' => $creds['authorized_for'],
+                'authorizedFor' => $creds['authorized_for'],
                 'creator' => Utils::json_decode($creds['creator']),
                 'created' => $creds['created'],
                 '#data' => $creds['data'],
@@ -99,7 +99,7 @@ class CredentialsController extends ApiController
 
 		$result = $conn->fetchAll(
 			"SELECT
-				`authorized_for`,
+				`authorized_for` AS `authorizedFor`,
 				`id`,
 				`creator`,
 				`created`
