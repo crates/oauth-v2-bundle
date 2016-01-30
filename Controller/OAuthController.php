@@ -123,7 +123,8 @@ class OAuthController extends SessionController
                 'project_id' => $tokenDetail['owner']['id'],
                 'creator' => json_encode($creator),
                 'data' => ByAppEncryption::encrypt($data, $componentId, $token, true),
-                'authorizedFor' => $description
+                'authorized_for' => $description,
+                'created' => date("Y-m-d H:i:s")
             ]);
         } catch(\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
             $id = $session->get('id');
