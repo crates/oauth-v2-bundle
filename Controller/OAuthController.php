@@ -5,13 +5,16 @@ namespace Keboola\OAuthV2Bundle\Controller;
 use Keboola\Syrup\Exception\SyrupComponentException,
     Keboola\Syrup\Exception\UserException,
     Keboola\Syrup\Encryption\BaseWrapper;
-use Symfony\Component\HttpFoundation\Response,
+use Keboola\StorageApi\Client as StorageApi;
+use Symfony\Component\HttpFoundation\JsonResponse,
     Symfony\Component\HttpFoundation\Request,
     Symfony\Component\HttpFoundation\Session\Attribute\AttributeBag;
 use Doctrine\DBAL\Connection;
 use Keboola\OAuth\OAuth10,
-    Keboola\OAuth\OAuth20;
-use Keboola\OAuthV2Bundle\Storage\Session;
+    Keboola\OAuth\OAuth20,
+    Keboola\OAuth\AbstractOAuth;
+use Keboola\OAuthV2Bundle\Storage\Session,
+    Keboola\OAuthV2Bundle\Encryption\ByAppEncryption;
 
 /**
  * @todo Use 1 controller and initialize with 1.0 or 2.0 class, that'll take care
@@ -32,29 +35,20 @@ class OAuthController extends SessionController
     /**
      * Initialize the call and redirect to authorization website
      */
-    public function initAction($componentId, Request $request)
+    public function initAction($componentId, Request $request, $validateRequest = true)
     {
         $session = $this->initSession($request);
 
-        $api = $this->connection->fetchAssoc("SELECT `app_key`, `app_secret`, `auth_url`, `token_url`, `request_token_url`, `oauth_version` FROM `consumers` WHERE `component_id` = :componentId", ['componentId' => $componentId]);
-        if (empty($api)) {
-            throw new UserException("Api '{$componentId}' details not found in the OAuth consumer database");
+        if ($validateRequest) {
+            $this->checkParams($session->getBag());
         }
 
-        $api['app_secret'] = $this->getEncryptor()->decrypt($api['app_secret']);
-
-        $oAuth = $api['oauth_version'] == '1.0' ? new OAuth10($api) : new OAuth20($api);
+        $oAuth = $this->getOAuth($componentId);
 
         $result = $oAuth->createRedirectData($this->getCallbackUrl($request));
 
         if (!empty($result['sessionData'])) {
-            foreach($result['sessionData'] as $key => $val) {
-                if (!is_scalar($val)) {
-                    throw new SyrupComponentException("Session value must be scalar");
-                }
-
-                $session->setEncrypted($key, $val);
-            }
+            $session->setEncrypted('oauth_data', serialize($result['sessionData']));
         }
 
         return $this->redirect($result['url']);
@@ -62,41 +56,95 @@ class OAuthController extends SessionController
 
     public function callbackAction($componentId, Request $request)
     {
-//         $session = $this->createSession();
+        $session = $this->createSession();
 
-//         var_dump($session, $request);
-// $bag = new AttributeBag('_' . parent::BAG_NAME);
-// $bag->setName(parent::BAG_NAME);
-// $this->getSymfonySession()->registerBag($bag);
-// if ($reset || !$this->sessionBag) {
-//     $name = str_replace("-", "", parent::BAG_NAME);
-//     /** @var Session $session */
-//     $session = $this->container->get('session');
-//     $bag = new AttributeBag('_' . parent::BAG_NAME);
-//     $bag->setName($name);
-//     $session->registerBag($bag);
-//
-//     $this->sessionBag = $session->getBag($name);
-// // }
-// var_dump($this->sessionBag);
+        $oAuth = $this->getOAuth($componentId);
 
-var_dump($this->createSession()->getBag()->all());
-// var_dump($this->getSymfonySession()->);
-// $this->createSession()->set('cccc', 'ddddd');
-// var_dump($this->createSession()->getBag());
-die();
+        $sessionOAuthData = $session->getBag()->has('oauth_data')
+            ? unserialize($session->getEncrypted('oauth_data'))
+            : [];
 
+        $result = $oAuth->createToken(
+            $this->getCallbackUrl($request),
+            $sessionOAuthData,
+            $request->query->all()
+        );
+
+        if ($session->getBag()->has('returnData') && $session->get('returnData')) {
+            return new JsonResponse($result, 200, [
+                "Content-Type" => "application/json",
+                "Access-Control-Allow-Origin" => "*",
+                "Connection" => "close"
+            ]);
+        }
+
+        $this->storeResult($result, $componentId, $session);
+
+        if (!$session->getBag()->has('returnUrl') || empty($session->get('returnUrl'))) {
+            throw new UserException("Cannot redirect; return URL not found");
+        }
+
+        return $this->redirect($session->get('returnUrl'));
     }
 
     public function testInitAction($componentId, Request $request)
     {
-        $redirect = $this->initAction($componentId, $request);
+        $redirect = $this->initAction($componentId, $request, false);
 
         $session = $this->createSession();
         $session->set('returnData', true);
         $session->set('returnUrl', null);
 
         return $redirect;
+    }
+
+    /**
+     * @param mixed $result
+     * @param string $componentId
+     * @param Session $session
+     */
+    protected function storeResult($result, $componentId, Session $session)
+    {
+        $description = $session->getBag()->has('description') ? $session->get('description') : '';
+        $token = $session->getEncrypted('token');
+
+        $tokenDetail = $this->getStorageApiToken($token);
+        $creator = [
+            'id' => $tokenDetail['id'],
+            'description' => $tokenDetail['description']
+        ];
+
+        $data = json_encode($result);
+
+        try {
+            $this->connection->insert('credentials', [
+                'id' => $session->get('id'),
+                'component_id' => $componentId,
+                'project_id' => $tokenDetail['owner']['id'],
+                'creator' => json_encode($creator),
+                'data' => ByAppEncryption::encrypt($data, $componentId, $token, true),
+                'authorizedFor' => $description
+            ]);
+        } catch(\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
+            $id = $session->get('id');
+            throw new UserException("Credentials '{$id}' for component '{$componentId}' already exist!");
+        }
+    }
+
+    /**
+     * @param string $componentId
+     * @return AbstractOAuth
+     */
+    protected function getOAuth($componentId)
+    {
+        $api = $this->connection->fetchAssoc("SELECT `app_key`, `app_secret`, `auth_url`, `token_url`, `request_token_url`, `oauth_version` FROM `consumers` WHERE `component_id` = :componentId", ['componentId' => $componentId]);
+        if (empty($api)) {
+            throw new UserException("Api '{$componentId}' details not found in the OAuth consumer database");
+        }
+
+        $api['app_secret'] = $this->getEncryptor()->decrypt($api['app_secret']);
+
+        return $api['oauth_version'] == '1.0' ? new OAuth10($api) : new OAuth20($api);
     }
 
     /**
@@ -132,6 +180,39 @@ die();
     {
         $this->connection = $this->getConnection();
         $this->encryptor = $this->getEncryptor();
+    }
+
+    /**
+     * @param string $token
+     * @return StorageApi
+     */
+    protected function getStorageApiToken($token)
+    {
+        $sapi = new StorageApi([
+            "token" => $token,
+            "userAgent" => 'oauth-v2'
+        ]);
+
+        try {
+            $tokenInfo = $sapi->verifyToken();
+        } catch(Keboola\StorageApi\ClientException $e) {
+            throw new UserException($e->getMessage());
+        }
+
+        return $tokenInfo;
+    }
+
+    /**
+     * @param AttributeBag $params
+     * @throws UserException
+     */
+    protected function checkParams(AttributeBag $params)
+    {
+        foreach(['token', 'id'] as $name) {
+            if (!$params->has($name)) {
+                throw new UserException("Missing parameter '{$name}'");
+            }
+        }
     }
 
     /**

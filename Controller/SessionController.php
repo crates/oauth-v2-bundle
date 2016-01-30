@@ -4,7 +4,8 @@ namespace Keboola\OAuthV2Bundle\Controller;
 
 use Keboola\Syrup\Exception\SyrupComponentException,
     Keboola\Syrup\Exception\UserException,
-    Keboola\Syrup\Controller\BaseController;
+    Keboola\Syrup\Controller\BaseController,
+    Keboola\Syrup\Encryption\BaseWrapper;
 use Symfony\Component\HttpFoundation\Response,
     Symfony\Component\HttpFoundation\Request,
     Symfony\Component\HttpFoundation\Session\Attribute\AttributeBag,
@@ -98,6 +99,10 @@ class SessionController extends BaseController
                 ? $request->request->get('returnUrl')
                 : $request->server->get("HTTP_REFERER")
         );
+
+        if ($request->request->has('token')) {
+            $session->setEncrypted('token', $request->request->get('token'));
+        }
 
         return $session;
     }
