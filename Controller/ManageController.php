@@ -2,7 +2,7 @@
 
 namespace Keboola\OAuthV2Bundle\Controller;
 
-use	Keboola\Syrup\Controller\ApiController,
+use	Keboola\Syrup\Controller\BaseController,
 	Keboola\Syrup\Exception\UserException,
     Keboola\Syrup\Encryption\BaseWrapper;
 use	Symfony\Component\HttpFoundation\Response,
@@ -13,7 +13,7 @@ use Keboola\ManageApi\Client,
     Keboola\ManageApi\ClientException;
 use Keboola\OAuthV2Bundle\Encryption\ByAppEncryption;
 
-class ManageController extends ApiController
+class ManageController extends BaseController
 {
     protected $defaultResponseHeaders = [
         "Content-Type" => "application/json",
