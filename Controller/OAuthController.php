@@ -179,6 +179,7 @@ class OAuthController extends SessionController
 
     public function preExecute(Request $request)
     {
+        parent::preExecute($request);
         $this->connection = $this->getConnection();
         $this->encryptor = $this->getEncryptor();
     }
