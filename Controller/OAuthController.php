@@ -105,7 +105,7 @@ class OAuthController extends SessionController
      */
     protected function storeResult($result, $componentId, Session $session)
     {
-        $description = $session->getBag()->has('description') ? $session->get('description') : '';
+        $authorizedFor = $session->getBag()->has('authorizedFor') ? $session->get('authorizedFor') : '';
         $token = $session->getEncrypted('token');
 
         $tokenDetail = $this->getStorageApiToken($token);
@@ -123,7 +123,7 @@ class OAuthController extends SessionController
                 'project_id' => $tokenDetail['owner']['id'],
                 'creator' => json_encode($creator),
                 'data' => ByAppEncryption::encrypt($data, $componentId, $token, true),
-                'authorized_for' => $description,
+                'authorized_for' => $authorizedFor,
                 'created' => date("Y-m-d H:i:s")
             ]);
         } catch(\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
