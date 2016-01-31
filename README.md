@@ -181,7 +181,7 @@ The `X-KBC-ManageApiToken` must have `oauth:manage` scope.
     + Headers
 
             Accept: application/json
-            X-StorageApi-Token: Your-Sapi-Token
+            X-KBC-ManageApiToken: Manage-token
 
 + Response 200 (application/json)
 
@@ -221,7 +221,7 @@ The `X-KBC-ManageApiToken` must have `oauth:manage` scope.
     + Headers
 
             Accept: application/json
-            X-StorageApi-Token: Your-Sapi-Token
+            X-KBC-ManageApiToken: Manage-token
 
 + Response 200 (application/json)
 
@@ -343,7 +343,6 @@ The `X-KBC-ManageApiToken` must have `oauth:manage` scope.
     + Headers
 
             Accept: application/json
-            X-StorageApi-Token: Your-Sapi-Token
             X-KBC-ManageApiToken: Manage-token
 
 + Response 204

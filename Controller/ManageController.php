@@ -21,30 +21,11 @@ class ManageController extends ApiController
         "Connection" => "close"
     ];
 
-    /**
-     * @todo the load into a BASE controller / separate class initialized with manage token
-     * + key to load details for all APIs (1.0 and 2.0)
-     * @test
-     */
-//     public function authAction($componentId, Request $request)
-//     {
-//         $token = $this->storageApi->verifyToken();
-//
-//         $conn = $this->getConnection();
-//
-//         $detail = $this->getConnection()->fetchAssoc("SELECT `component_id`, `app_key`, `app_secret`, `oauth_version` FROM `consumers` WHERE `component_id` = :componentId", ['componentId' => $componentId]);
-//
-//         $secret = $this->getEncryptor()->decrypt($detail['app_secret']);
-//
-//     }
-
 	/**
 	 * List all supported consumers
 	 */
 	public function listAction()
 	{
-		$token = $this->storageApi->verifyToken();
-
 		$conn = $this->getConnection();
 
 		$consumers = $conn->fetchAll(
@@ -60,8 +41,6 @@ class ManageController extends ApiController
 	 */
 	public function getAction($componentId)
 	{
-        $token = $this->storageApi->verifyToken();
-
         $conn = $this->getConnection();
 
         $detail = $this->getConnection()->fetchAssoc("SELECT `component_id`, `friendly_name`, `app_key`, `app_secret_docker`, `oauth_version` FROM `consumers` WHERE `component_id` = :componentId", ['componentId' => $componentId]);
@@ -86,11 +65,7 @@ class ManageController extends ApiController
 	 */
 	public function addAction(Request $request)
 	{
-        if (!$this->checkScope('oauth:manage', $request)) {
-            throw new UserException("Insufficient permissions to add API");
-        }
-
-        $sapiToken = $this->storageApi->verifyToken();
+        $sapiToken = $this->container->get('syrup.storage_api')->getClient()->verifyToken();
 
         $conn = $this->getConnection();
 
@@ -119,15 +94,6 @@ class ManageController extends ApiController
 	 */
 	public function deleteAction($componentId, Request $request)
 	{
-        if (!$this->checkScope('oauth:manage', $request)) {
-            throw new UserException("Insufficient permissions to add API");
-        }
-
-        /**
-         * UNUSED -> preExecute?
-         */
-        $sapiToken = $this->storageApi->verifyToken();
-
         $conn = $this->getConnection();
 
         try {
@@ -144,6 +110,13 @@ class ManageController extends ApiController
 
         throw new UserException("Unknown error deleting consumer '{$componentId}'.");
 	}
+
+	public function preExecute(Request $request)
+	{
+        if (!$this->checkScope('oauth:manage', $request)) {
+            throw new UserException("Insufficient permissions to add API");
+        }
+    }
 
     /**
      * @param string $secret
