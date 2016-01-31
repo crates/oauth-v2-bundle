@@ -2,13 +2,13 @@
 
 namespace Keboola\OAuthV2Bundle\Controller;
 
-use	Keboola\Syrup\Controller\BaseController,
-	Keboola\Syrup\Exception\UserException,
+use Keboola\Syrup\Controller\BaseController,
+    Keboola\Syrup\Exception\UserException,
     Keboola\Syrup\Encryption\BaseWrapper;
-use	Symfony\Component\HttpFoundation\Response,
-	Symfony\Component\HttpFoundation\JsonResponse,
-	Symfony\Component\HttpFoundation\Request;
-use	Keboola\Utils\Utils;
+use Symfony\Component\HttpFoundation\Response,
+    Symfony\Component\HttpFoundation\JsonResponse,
+    Symfony\Component\HttpFoundation\Request;
+use Keboola\Utils\Utils;
 use Keboola\ManageApi\Client,
     Keboola\ManageApi\ClientException;
 use Keboola\OAuthV2Bundle\Encryption\ByAppEncryption;
@@ -21,26 +21,26 @@ class ManageController extends BaseController
         "Connection" => "close"
     ];
 
-	/**
-	 * List all supported consumers
-	 */
-	public function listAction()
-	{
-		$conn = $this->getConnection();
+    /**
+     * List all supported consumers
+     */
+    public function listAction()
+    {
+        $conn = $this->getConnection();
 
-		$consumers = $conn->fetchAll(
+        $consumers = $conn->fetchAll(
             "SELECT `component_id`, `app_key`, `friendly_name`, `oauth_version`
             FROM `consumers`"
         );
 
-		return new JsonResponse($consumers, 200, $this->defaultResponseHeaders);
-	}
+        return new JsonResponse($consumers, 200, $this->defaultResponseHeaders);
+    }
 
-	/**
-	 * Get detail for 'componentId' consumer
-	 */
-	public function getAction($componentId)
-	{
+    /**
+     * Get detail for 'componentId' consumer
+     */
+    public function getAction($componentId)
+    {
         $conn = $this->getConnection();
 
         $detail = $this->getConnection()->fetchAssoc("SELECT `component_id`, `friendly_name`, `app_key`, `app_secret_docker`, `oauth_version` FROM `consumers` WHERE `component_id` = :componentId", ['componentId' => $componentId]);
@@ -58,13 +58,13 @@ class ManageController extends BaseController
         }
 
         return new JsonResponse($detail, 200, $this->defaultResponseHeaders);
-	}
+    }
 
-	/**
-	 * Add API to `consumers` and encrypt the secret
-	 */
-	public function addAction(Request $request)
-	{
+    /**
+     * Add API to `consumers` and encrypt the secret
+     */
+    public function addAction(Request $request)
+    {
         $sapiToken = $this->container->get('syrup.storage_api')->getClient()->verifyToken();
 
         $conn = $this->getConnection();
@@ -87,13 +87,13 @@ class ManageController extends BaseController
             201,
             $this->defaultResponseHeaders
         );
-	}
+    }
 
-	/**
-	 * Delete existing component record
-	 */
-	public function deleteAction($componentId, Request $request)
-	{
+    /**
+     * Delete existing component record
+     */
+    public function deleteAction($componentId, Request $request)
+    {
         $conn = $this->getConnection();
 
         try {
@@ -109,10 +109,10 @@ class ManageController extends BaseController
         }
 
         throw new UserException("Unknown error deleting consumer '{$componentId}'.");
-	}
+    }
 
-	public function preExecute(Request $request)
-	{
+    public function preExecute(Request $request)
+    {
         if (!$this->checkScope('oauth:manage', $request)) {
             throw new UserException("Insufficient permissions to add API");
         }
@@ -131,8 +131,8 @@ class ManageController extends BaseController
      * @param object $api
      * @return object
      */
-	protected function validateApiConfig(\stdClass $api)
-	{
+    protected function validateApiConfig(\stdClass $api)
+    {
         if (empty($api->oauth_version) || !in_array($api->oauth_version, ['1.0', '2.0'])) {
             throw new UserException("'oauth_version' must be either '1.0' or '2.0'");
         }
@@ -177,15 +177,15 @@ class ManageController extends BaseController
         }
 
         return $validated;
-	}
+    }
 
-	/**
-	 * @param string $scope
-	 * @param Request $request
+    /**
+     * @param string $scope
+     * @param Request $request
      * @return bool
-	 */
-	protected function checkScope($scope, Request $request)
-	{
+     */
+    protected function checkScope($scope, Request $request)
+    {
         if (!$request->headers->get("X-KBC-ManageApiToken")) {
             throw new UserException("Manage API Token not set.");
         }
@@ -200,7 +200,7 @@ class ManageController extends BaseController
         }
 
         return is_array($token['scopes']) && in_array($scope, $token['scopes']);
-	}
+    }
 
     /**
      * @return BaseWrapper
@@ -210,16 +210,16 @@ class ManageController extends BaseController
         return $this->container->get('syrup.encryption.base_wrapper');
     }
 
-	/**
-	 * @return \Doctrine\DBAL\Connection
-	 */
-	protected function getConnection()
-	{
-		return $this->getDoctrine()->getConnection('oauth_providers');
-	}
+    /**
+     * @return \Doctrine\DBAL\Connection
+     */
+    protected function getConnection()
+    {
+        return $this->getDoctrine()->getConnection('oauth_providers');
+    }
 
-// 	protected function getSelfEncryption()
-// 	{
+//     protected function getSelfEncryption()
+//     {
 //         return new SelfEncryption($this->container->getParameter('oauth.defuse_encryption_key'));
-// 	}
+//     }
 }
