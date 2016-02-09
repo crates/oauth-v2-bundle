@@ -126,7 +126,7 @@ The `X-KBC-ManageApiToken` must have `oauth:manage` scope.
             "#data": "KBC::ComponentProjectEncrypted==F2LdyHQB45lJHtf6dZbxzfuhqlplplplpxByYn19OJQ3JLpyoxQcEqovAzipNAd6Kxc0PDe2nP468448648aSN0OzJcE4VovJk7YaX8wrzoS+tURTRFuWVFZZ5gpJjQvezj1iOgm++KOROIHNdfohuiogygiwpOuNgPFzgYeg8RL5CCBAB5zzVr4HmT4/DtVdOV+cJ5miPmuHp93sMQA=",
             "oauthVersion": "2.0",
             "appKey": "w51u7j30oghe412",
-            "appSecret": "KBC::ComponentEncrypted==/5fEM59+3+59+5+uE/TQPwltR8mp+WNu7kYAJkdTXxkc2UswH0YrnAYRjeGTqGp5hA=="
+            "#appSecret": "KBC::ComponentEncrypted==/5fEM59+3+59+5+uE/TQPwltR8mp+WNu7kYAJkdTXxkc2UswH0YrnAYRjeGTqGp5hA=="
         }
 
 ### Delete credentials [DELETE]
