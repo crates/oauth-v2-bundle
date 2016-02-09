@@ -48,7 +48,7 @@ class CredentialsController extends ApiController
                 '#data' => $creds['data'],
                 'oauthVersion' => $consumer['oauth_version'],
                 'appKey' => $consumer['app_key'],
-                'appSecret' => $consumer['app_secret_docker']
+                '#appSecret' => $consumer['app_secret_docker']
             ],
             200,
             [
