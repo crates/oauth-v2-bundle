@@ -17,7 +17,6 @@ class ByAppEncryption
     {
         $client = Client::factory([
             'token' => $token,
-            'runId' => 'CURRENT_RUNID', // TODO
             'super' => 'docker'
         ]);
 
