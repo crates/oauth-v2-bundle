@@ -26,29 +26,5 @@ class ByAppEncryption
         } catch(ClientException $e) {
             throw new UserException("Component based encryption of the app secret failed: " . $e->getMessage());
         }
-
-
-//         $url = $toConfig
-//             ? "https://syrup.keboola.com/docker/{$componentId}/configs/encrypt"
-//             : "https://syrup.keboola.com/docker/{$componentId}/encrypt";
-//
-//         $client = new Guzzle();
-//
-//         try {
-//             $result = $client->post(
-//                 $url,
-//                 [
-//                     'headers' => [
-//                         'X-StorageApi-Token' => $token,
-//                         'Content-Type' => 'text/plain'
-//                     ],
-//                     'body' => $secret
-//                 ]
-//             );
-//         } catch(ClientException $e) {
-//             throw new UserException("Component based encryption of the app secret failed: " . $e->getMessage());
-//         }
-//
-//         return (string) $result->getBody();
     }
 }
