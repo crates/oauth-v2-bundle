@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "b48602d657c19e15b4cb8be18851963f",
-    "content-hash": "efea436acd6afbdfd63aac0b0e954736",
+    "hash": "0073a3ff97b7d924b15021fba5bf1af0",
+    "content-hash": "0c6486192a76a4d052ea1bc2a855d812",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -1843,6 +1843,38 @@
             ],
             "description": "Syrup",
             "time": "2016-01-07 10:26:09"
+        },
+        {
+            "name": "keboola/syrup-php-client",
+            "version": "2.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/keboola/syrup-php-client.git",
+                "reference": "11b81fe1d784dcd2e1feb42976017b73ea5a8053"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/keboola/syrup-php-client/zipball/11b81fe1d784dcd2e1feb42976017b73ea5a8053",
+                "reference": "11b81fe1d784dcd2e1feb42976017b73ea5a8053",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "~6.1"
+            },
+            "require-dev": {
+                "codeclimate/php-test-reporter": "~0.2",
+                "phpunit/phpunit": "~5.0",
+                "squizlabs/php_codesniffer": "~2.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Keboola": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "description": "Keboola Syrup PHP Client",
+            "time": "2016-01-05 13:14:24"
         },
         {
             "name": "kriswallsmith/assetic",

@@ -1,8 +1,9 @@
 <?php
 namespace Keboola\OAuthV2Bundle\Encryption;
 
-use GuzzleHttp\Client as Guzzle,
-    GuzzleHttp\Exception\ClientException;
+use Keboola\Syrup\Client,
+    Keboola\Syrup\ClientException;
+use Keboola\Syrup\Exception\UserException;
 
 class ByAppEncryption
 {
@@ -14,27 +15,40 @@ class ByAppEncryption
      */
    public static function encrypt($secret, $componentId, $token, $toConfig = false)
     {
-        $url = $toConfig
-            ? "https://syrup.keboola.com/docker/{$componentId}/configs/encrypt"
-            : "https://syrup.keboola.com/docker/{$componentId}/encrypt";
-
-        $client = new Guzzle();
+        $client = Client::factory([
+            'token' => $token,
+            'runId' => 'CURRENT_RUNID', // TODO
+            'super' => 'docker'
+        ]);
 
         try {
-            $result = $client->post(
-                $url,
-                [
-                    'headers' => [
-                        'X-StorageApi-Token' => $token,
-                        'Content-Type' => 'text/plain'
-                    ],
-                    'body' => $secret
-                ]
-            );
+            return $client->encryptString($componentId, $secret, $toConfig ? ["path" => "configs"] : []);
         } catch(ClientException $e) {
             throw new UserException("Component based encryption of the app secret failed: " . $e->getMessage());
         }
 
-        return (string) $result->getBody();
+
+//         $url = $toConfig
+//             ? "https://syrup.keboola.com/docker/{$componentId}/configs/encrypt"
+//             : "https://syrup.keboola.com/docker/{$componentId}/encrypt";
+//
+//         $client = new Guzzle();
+//
+//         try {
+//             $result = $client->post(
+//                 $url,
+//                 [
+//                     'headers' => [
+//                         'X-StorageApi-Token' => $token,
+//                         'Content-Type' => 'text/plain'
+//                     ],
+//                     'body' => $secret
+//                 ]
+//             );
+//         } catch(ClientException $e) {
+//             throw new UserException("Component based encryption of the app secret failed: " . $e->getMessage());
+//         }
+//
+//         return (string) $result->getBody();
     }
 }
