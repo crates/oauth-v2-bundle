@@ -251,7 +251,7 @@ The `X-KBC-ManageApiToken` must have `oauth:manage` scope.
 
     + auth_url = `` (required, string, `https://www.dropbox.com/1/oauth2/authorize?response_type=code&client_id=%%client_id%%&redirect_uri=%%redirect_uri%%&state=%%hash%%`) ... For **1.0**, `%%oauth_token%%` is replaced by `oauth_token` retrieved by initial POST to API. For **2.0**, `%%redirect_uri%%` and `%%client_id%%` are replaced by generated redirect URI (to the OAuth application) and `app_key`.
 
-    + token_url = `` (required, string, `https://api.dropbox.com/1/oauth2/token`) ... Access token url. Used in the last step of OAuth process
+    + token_url = `` (required, string, `https://api.dropbox.com/1/oauth2/token`) ... Access token url. Used in the last step of OAuth process. [1.0](http://oauth.net/core/1.0/#auth_step3); [2.0](https://tools.ietf.org/html/rfc6749#section-3.2)
 
     + request_token_url = `` (optional, string, `https://api.twitter.com/oauth/request_token`) ... Required for OAuth 1.0
 
