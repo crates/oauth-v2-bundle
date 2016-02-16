@@ -10,6 +10,8 @@ The authorization process can be initiated manually to retrieve OAuth tokens for
 
 Using a `POST` request with `token` and `id` will store the result in the application database, encrypted by Keboola Docker application with matching `componentId`. The component must support encryption. After storing the result, the application redirects to `HTTP_REFERRER`, which can be overriden by using `returnUrl` parameter in the POST request.
 
+The `GET` request for "manual" authentication returns the raw contents of `#data`, but does **not** store the result.
+
 The `X-KBC-ManageApiToken` must have `oauth:manage` scope.
 
 ## TODO
