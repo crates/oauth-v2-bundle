@@ -10,6 +10,8 @@ The authorization process can be initiated manually to retrieve OAuth tokens for
 
 Using a `POST` request with `token` and `id` will store the result in the application database, encrypted by Keboola Docker application with matching `componentId`. The component must support encryption. After storing the result, the application redirects to `HTTP_REFERRER`, which can be overriden by using `returnUrl` parameter in the POST request.
 
+The `GET` request for "manual" authentication returns the raw contents of `#data`, but does **not** store the result.
+
 The `X-KBC-ManageApiToken` must have `oauth:manage` scope.
 
 ## TODO
@@ -249,7 +251,7 @@ The `X-KBC-ManageApiToken` must have `oauth:manage` scope.
 
     + auth_url = `` (required, string, `https://www.dropbox.com/1/oauth2/authorize?response_type=code&client_id=%%client_id%%&redirect_uri=%%redirect_uri%%&state=%%hash%%`) ... For **1.0**, `%%oauth_token%%` is replaced by `oauth_token` retrieved by initial POST to API. For **2.0**, `%%redirect_uri%%` and `%%client_id%%` are replaced by generated redirect URI (to the OAuth application) and `app_key`.
 
-    + token_url = `` (required, string, `https://api.dropbox.com/1/oauth2/token`) ... Access token url. Used in the last step of OAuth process
+    + token_url = `` (required, string, `https://api.dropbox.com/1/oauth2/token`) ... Access token url. Used in the last step of OAuth process. [1.0](http://oauth.net/core/1.0/#auth_step3); [2.0](https://tools.ietf.org/html/rfc6749#section-3.2)
 
     + request_token_url = `` (optional, string, `https://api.twitter.com/oauth/request_token`) ... Required for OAuth 1.0
 
@@ -346,3 +348,7 @@ The `X-KBC-ManageApiToken` must have `oauth:manage` scope.
             X-KBC-ManageApiToken: Manage-token
 
 + Response 204
+
+
+
+
