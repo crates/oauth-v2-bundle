@@ -1508,16 +1508,16 @@
         },
         {
             "name": "keboola/oauth",
-            "version": "0.1.1",
+            "version": "0.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/php-oauth.git",
-                "reference": "64e0553032ee2f7e92f0ee1ff0d0070fde317442"
+                "reference": "09340a02a465cc28266df1954e1e74a6fe829023"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/php-oauth/zipball/64e0553032ee2f7e92f0ee1ff0d0070fde317442",
-                "reference": "64e0553032ee2f7e92f0ee1ff0d0070fde317442",
+                "url": "https://api.github.com/repos/keboola/php-oauth/zipball/09340a02a465cc28266df1954e1e74a6fe829023",
+                "reference": "09340a02a465cc28266df1954e1e74a6fe829023",
                 "shasum": ""
             },
             "require": {
@@ -1550,7 +1550,7 @@
             "keywords": [
                 "oauth"
             ],
-            "time": "2016-02-17 12:09:32"
+            "time": "2016-02-18 02:15:58"
         },
         {
             "name": "keboola/php-csvtable",
