@@ -14,6 +14,9 @@ The `GET` request for "manual" authentication returns the raw contents of `#data
 
 The `X-KBC-ManageApiToken` must have `oauth:manage` scope.
 
+## Callback URL
+The callback URL for the API is generated using the `componentId`, into the following URL: `https://syrup.keboola.com/oauth-v2/authorize/{componentId}/callback`
+
 ## TODO
 - scope is missing
 
@@ -97,6 +100,25 @@ The `X-KBC-ManageApiToken` must have `oauth:manage` scope.
             }
 
 + Response 302
+
+## Callback [/authorize/{componentId}/callback]
+
+### Handle the callback action [GET]
+The response is determined based on the session's stored `referrer` or `returnUrl`. If the initial request to OAuth API is made using a `GET` request, the 200 response with raw data is returned and **not saved to database**. If the request is made from a web form, the 302 redirect is returned and result is saved.
+
++ Parameters
+
+    + componentId = `` (required, string, `yourApp`) ... Identifier of the KBC component
+
++ Response 200 (application/json)
+
+            {
+                "access_token": "FoB3o4tdgj86Rq1chSO7qjBLv2S9XD7e",
+                "token_type": "bearer",
+                "uid": "12345678"
+            }
+
++ Response 302 
 
 # Group Credentials
 
