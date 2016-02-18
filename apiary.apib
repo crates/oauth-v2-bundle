@@ -14,12 +14,15 @@ The `GET` request for "manual" authentication returns the raw contents of `#data
 
 The `X-KBC-ManageApiToken` must have `oauth:manage` scope.
 
+## Callback URL
+The callback URL for the API is generated using the `componentId`, into the following URL: `https://syrup.keboola.com/oauth-v2/authorize/{componentId}/callback`
+
 ## TODO
 - scope is missing
 
 # Group Authorize
 
-## Generate OAuth token for OAuth applications [/authorize/{componentId}{?token,id,description,returnUrl}]
+## Generate OAuth token for OAuth applications [/authorize/{componentId}{?token,id,authorizedFor,returnUrl}]
 
 ### Get a TEST token in browser [GET]
 
@@ -98,6 +101,25 @@ The `X-KBC-ManageApiToken` must have `oauth:manage` scope.
 
 + Response 302
 
+## Callback [/authorize/{componentId}/callback]
+
+### Handle the callback action [GET]
+The response is determined based on the session's stored `referrer` or `returnUrl`. If the initial request to OAuth API is made using a `GET` request, the 200 response with raw data is returned and **not saved to database**. If the request is made from a web form, the 302 redirect is returned and result is saved.
+
++ Parameters
+
+    + componentId = `` (required, string, `yourApp`) ... Identifier of the KBC component
+
++ Response 200 (application/json)
+
+            {
+                "access_token": "FoB3o4tdgj86Rq1chSO7qjBLv2S9XD7e",
+                "token_type": "bearer",
+                "uid": "12345678"
+            }
+
++ Response 302 
+
 # Group Credentials
 
 ## Retrieve credentials [/credentials/{componentId}/{id}]
@@ -174,7 +196,7 @@ The `X-KBC-ManageApiToken` must have `oauth:manage` scope.
 
 # Group Manage
 
-## List supported API [/manage]
+## Add/List supported API [/manage]
 
 ### Get list of supported APIs [GET]
 
@@ -210,33 +232,6 @@ The `X-KBC-ManageApiToken` must have `oauth:manage` scope.
           }
         ]
 
-## Get API detail [/manage/{componentId}]
-
-### Get API detail [GET]
-
-+ Parameters
-
-    + componentId = `` (required, string, `yourApp`) ... Identifier of the KBC component
-
-+ Request
-
-    + Headers
-
-            Accept: application/json
-            X-KBC-ManageApiToken: Manage-token
-
-+ Response 200 (application/json)
-
-        {
-            "component_id": "wr-dropbox",
-            "friendly_name": "Dropbox Writer",
-            "app_key": "w51y7j30ovhe412",
-            "app_secret_docker": "KBC::ComponentEncrypted==/fiewoqhfhoighuqg64gr426wg4864rc26g4re6g/TQPwltR8mp+FEWFwg6gr6e4gc688g6w42==",
-            "oauth_version": "2.0"
-        }
-
-## Add API [/manage]
-
 ### Add new component [POST]
 
 + Parameters
@@ -249,11 +244,11 @@ The `X-KBC-ManageApiToken` must have `oauth:manage` scope.
 
     + app_secret = `` (required, string, `f86q4f6e4f64q6f486q`) ... Consumer Secret / Client secret. Stored encrypted
 
-    + auth_url = `` (required, string, `https://www.dropbox.com/1/oauth2/authorize?response_type=code&client_id=%%client_id%%&redirect_uri=%%redirect_uri%%&state=%%hash%%`) ... For **1.0**, `%%oauth_token%%` is replaced by `oauth_token` retrieved by initial POST to API. For **2.0**, `%%redirect_uri%%` and `%%client_id%%` are replaced by generated redirect URI (to the OAuth application) and `app_key`.
+    + auth_url = `` (required, string, `https://www.dropbox.com/1/oauth2/authorize?response_type=code&client_id=%%app_key%%&redirect_uri=%%redirect_uri%%&state=%%hash%%`) ... For **1.0**, `%%oauth_token%%` is replaced by `oauth_token` retrieved by initial POST to API. For **2.0**, `%%redirect_uri%%` and `%%app_key%%` are replaced by generated redirect URI (to the OAuth application) and `app_key`. [1.0](http://oauth.net/core/1.0/#auth_step2); [2.0](http://tools.ietf.org/html/rfc6749#section-4.1.1)
 
     + token_url = `` (required, string, `https://api.dropbox.com/1/oauth2/token`) ... Access token url. Used in the last step of OAuth process. [1.0](http://oauth.net/core/1.0/#auth_step3); [2.0](https://tools.ietf.org/html/rfc6749#section-3.2)
 
-    + request_token_url = `` (optional, string, `https://api.twitter.com/oauth/request_token`) ... Required for OAuth 1.0
+    + request_token_url = `` (optional, string, `https://api.twitter.com/oauth/request_token`) ... Required for OAuth [1.0](http://oauth.net/core/1.0/#auth_step1)
 
     + oauth_version: `2.0` (enum[string], required) - OAuth version
 
@@ -271,15 +266,15 @@ The `X-KBC-ManageApiToken` must have `oauth:manage` scope.
 
     + Body
 
-        {
-            "component_id": "wr-dropbox",
-            "friendly_name": "Dropbox Writer",
-            "app_key": "yourAppKey",
-            "app_secret": "yourAppSecret",
-            "auth_url": "https://www.dropbox.com/1/oauth2/authorize?response_type=code&client_id=%%client_id%%&redirect_uri=%%redirect_uri%%",
-            "token_url": "https://api.dropbox.com/1/oauth2/token",
-            "oauth_version": "2.0"
-        }
+                {
+                    "component_id": "wr-dropbox",
+                    "friendly_name": "Dropbox Writer",
+                    "app_key": "yourAppKey",
+                    "app_secret": "yourAppSecret",
+                    "auth_url": "https://www.dropbox.com/1/oauth2/authorize?response_type=code&client_id=%%client_id%%&redirect_uri=%%redirect_uri%%",
+                    "token_url": "https://api.dropbox.com/1/oauth2/token",
+                    "oauth_version": "2.0"
+                }
 
     + Schema
 
@@ -331,8 +326,30 @@ The `X-KBC-ManageApiToken` must have `oauth:manage` scope.
             "component_id": "wr-dropbox"
         }
 
+## Delete/Get API detail [/manage/{componentId}]
 
-## Delete API [/manage/{componentId}]
+### Get API detail [GET]
+
++ Parameters
+
+    + componentId = `` (required, string, `yourApp`) ... Identifier of the KBC component
+
++ Request
+
+    + Headers
+
+            Accept: application/json
+            X-KBC-ManageApiToken: Manage-token
+
++ Response 200 (application/json)
+
+        {
+            "component_id": "wr-dropbox",
+            "friendly_name": "Dropbox Writer",
+            "app_key": "w51y7j30ovhe412",
+            "app_secret_docker": "KBC::ComponentEncrypted==/fiewoqhfhoighuqg64gr426wg4864rc26g4re6g/TQPwltR8mp+FEWFwg6gr6e4gc688g6w42==",
+            "oauth_version": "2.0"
+        }
 
 ### Delete component [DELETE]
 
@@ -348,7 +365,3 @@ The `X-KBC-ManageApiToken` must have `oauth:manage` scope.
             X-KBC-ManageApiToken: Manage-token
 
 + Response 204
-
-
-
-
