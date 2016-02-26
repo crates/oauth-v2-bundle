@@ -211,7 +211,7 @@ class OAuthController extends SessionController
     protected function checkParams(AttributeBag $params)
     {
         foreach(['token', 'id'] as $name) {
-            if (!$params->has($name)) {
+            if (!$params->has($name) || empty($params->get($name))) {
                 throw new UserException("Missing parameter '{$name}'");
             }
         }
