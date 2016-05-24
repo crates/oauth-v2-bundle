@@ -28,7 +28,7 @@ The callback URL for the API is generated using the `componentId`, into the foll
 
 + Parameters
 
-    + componentId = `` (required, string, `wr-dropbox`) ... Identifier of the KBC component
+    + componentId: `wr-dropbox` (string, required) - Identifier of the KBC component
 
 + Response 201 (application/json)
 
@@ -43,15 +43,15 @@ The callback URL for the API is generated using the `componentId`, into the foll
 
 + Parameters
 
-    + componentId = `` (required, string, `yourApp`) ... Identifier of the KBC component
+    + componentId: `yourApp` (required, string) - Identifier of the KBC component
 
-    + token = `` (required, string, `305-78945-rg48re4g86g48gwgr48e6`) ... Your KBC Token
+    + token: `305-78945-rg48re4g86g48gwgr48e6` (required, string) - Your KBC Token
 
-    + id = `` (required, string, `main`) ... Credentials configuration identifier to be saved with the result
+    + id: `main` (required, string) - Credentials configuration identifier to be saved with the result
 
-    + authorizedFor = `` (optional, string, `Someone's account`) ... Credentials description (eg. account name)
+    + authorizedFor: `Someone's account` (optional, string) - Credentials description (eg. account name)
 
-    + returnUrl = `` (optional, string, `http://back.to.ui`) ... Override the HTTP Referrer
+    + returnUrl: `http://back.to.ui` (optional, string) - Override the HTTP Referrer
 
 + Request (multipart/form-data; boundary=----WebKitFormBoundaryC5GD12ZfR1D8yZIt)
     + Body
@@ -234,30 +234,40 @@ The response is determined based on the session's stored `referrer` or `returnUr
 
 ### Add new component [POST]
 
-+ Parameters
-
-    + component_id = `` (required, string, `wr-dropbox`) ... Identifier of the KBC component
-
-    + friendly_name = `` (required, string, `Your Application`) ... Name of the application
-
-    + app_key = `` (required, string, `as1d23f48`) ... Consumer Key / Client ID
-
-    + app_secret = `` (required, string, `f86q4f6e4f64q6f486q`) ... Consumer Secret / Client secret. Stored encrypted
-
-    + auth_url = `` (required, string, `https://www.dropbox.com/1/oauth2/authorize?response_type=code&client_id=%%app_key%%&redirect_uri=%%redirect_uri%%&state=%%hash%%`) ... For **1.0**, `%%oauth_token%%` is replaced by `oauth_token` retrieved by initial POST to API. For **2.0**, `%%redirect_uri%%` and `%%app_key%%` are replaced by generated redirect URI (to the OAuth application) and `app_key`. [1.0](http://oauth.net/core/1.0/#auth_step2); [2.0](http://tools.ietf.org/html/rfc6749#section-4.1.1)
-
-    + token_url = `` (required, string, `https://api.dropbox.com/1/oauth2/token`) ... Access token url. Used in the last step of OAuth process. [1.0](http://oauth.net/core/1.0/#auth_step3); [2.0](https://tools.ietf.org/html/rfc6749#section-3.2)
-
-    + request_token_url = `` (optional, string, `https://api.twitter.com/oauth/request_token`) ... Required for OAuth [1.0](http://oauth.net/core/1.0/#auth_step1)
-
-    + oauth_version: `2.0` (enum[string], required) - OAuth version
-
-        + Members
-            + `1.0` - For OAuth 1.0
-            + `2.0` - For OAuth 2.0
-
 + Request (application/json)
 
+    + Attributes
+    
+        + component_id: `wr-dropbox` (string, required) - Identifier of the KBC component
+
+        + friendly_name: `Your Application` (string, required) - Name of the application
+
+        + app_key: `as1d23f48` (string, required) - Consumer Key / Client ID
+
+        + app_secret: `f86q4f6e4f64q6f486q` (string, required) - Consumer secret / Client secret. Stored encrypted
+
+        + auth_url: `https://www.dropbox.com/1/oauth2/authorize?response_type=code&client_id=%%app_key%%&redirect_uri=%%redirect_uri%%&state=%%hash%%` (string, required) - Authentication URL
+        
+            For **1.0**, `%%oauth_token%%` is replaced by `oauth_token` retrieved by initial POST to API. 
+            For **2.0**, `%%redirect_uri%%` and `%%app_key%%` are replaced by generated redirect URI (to the OAuth application) and `app_key`. 
+            [1.0 Description](http://oauth.net/core/1.0/#auth_step2) 
+            [2.0 Description](http://tools.ietf.org/html/rfc6749#section-4.1.1)
+
+        + token_url: `https://api.dropbox.com/1/oauth2/token` (string, required) - Access token url. Used in the last step of OAuth process. 
+        
+            [1.0](http://oauth.net/core/1.0/#auth_step3) 
+            [2.0](https://tools.ietf.org/html/rfc6749#section-3.2)
+
+        + request_token_url: `https://api.twitter.com/oauth/request_token` (string, optional) - Required for OAuth 
+        
+            [1.0](http://oauth.net/core/1.0/#auth_step1)
+
+        + oauth_version: `2.0` (enum[string], required) - OAuth version
+
+            + Members
+                + `1.0` - For OAuth 1.0
+                + `2.0` - For OAuth 2.0
+                
     + Headers
 
             Accept: application/json
