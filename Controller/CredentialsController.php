@@ -2,6 +2,7 @@
 
 namespace Keboola\OAuthV2Bundle\Controller;
 
+use Keboola\OAuthV2Bundle\Encryption\ByAppEncryption;
 use Keboola\Syrup\Controller\ApiController,
     Keboola\Syrup\Exception\UserException;
 use Symfony\Component\HttpFoundation\Response,
@@ -120,11 +121,84 @@ class CredentialsController extends ApiController
         ]);
     }
 
+    public function addAction($componentId, Request $request)
+    {
+        $token = $this->storageApi->verifyToken();
+        $credentials = $this->validateCredentials(Utils::json_decode($request->getContent()));
+        $conn = $this->getConnection();
+
+        $consumer = $conn->fetchAssoc(
+            "SELECT `app_key`, `app_secret_docker`, `oauth_version` FROM `consumers` WHERE `component_id` = :componentId",
+            ['componentId' => $componentId]
+        );
+
+        if (empty($consumer)) {
+            throw new UserException("Component '{$componentId}' not found!");
+        }
+
+        $creator = [
+            'id' => $token['id'],
+            'description' => $token['description']
+        ];
+
+        $data = json_encode($credentials->data);
+        $dataEncrypted = ByAppEncryption::encrypt($data, $componentId, $token['token'], true);
+        $created = date("Y-m-d H:i:s");
+
+        try {
+            $conn->insert('credentials', [
+                'id' => $credentials->id,
+                'component_id' => $componentId,
+                'project_id' => $token['owner']['id'],
+                'creator' => json_encode($creator),
+                'data' => $dataEncrypted,
+                'authorized_for' => $credentials->authorizedFor,
+                'created' => $created
+            ]);
+        } catch(\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
+            throw new UserException("Credentials '{$credentials->id}' for component '{$componentId}' already exist!");
+        }
+
+        return new JsonResponse(
+            [
+                'id' => $credentials->id,
+                'authorizedFor' => $credentials->authorizedFor,
+                'creator' => $creator,
+                'created' => $created,
+                '#data' => $dataEncrypted,
+                'oauthVersion' => $consumer['oauth_version'],
+                'appKey' => $consumer['app_key'],
+                '#appSecret' => $consumer['app_secret_docker']
+            ],
+            201,
+            [
+                "Content-Type" => "application/json",
+                "Access-Control-Allow-Origin" => "*",
+                "Connection" => "close"
+            ]
+        );
+    }
+
     /**
      * @return \Doctrine\DBAL\Connection
      */
     protected function getConnection()
     {
         return $this->getDoctrine()->getConnection('oauth_providers');
+    }
+
+    private function validateCredentials(\stdClass $credentials)
+    {
+        $cols = ['id', 'data', 'authorizedFor'];
+
+        $validated = new \stdClass();
+        foreach ($cols as $col) {
+            if (empty($credentials->{$col})) {
+                throw new UserException("Missing parameter '{$col}'.");
+            }
+            $validated->{$col} = $credentials->{$col};
+        }
+
+        return $validated;
     }
 }
