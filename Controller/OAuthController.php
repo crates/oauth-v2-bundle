@@ -135,9 +135,10 @@ class OAuthController extends SessionController
 
     /**
      * @param string $componentId
+     * @param Session $session
      * @return AbstractOAuth
      */
-    protected function getOAuth($componentId)
+    protected function getOAuth($componentId, Session $session)
     {
         $api = $this->connection->fetchAssoc("SELECT `app_key`, `app_secret`, `auth_url`, `token_url`, `request_token_url`, `oauth_version` FROM `consumers` WHERE `component_id` = :componentId", ['componentId' => $componentId]);
         if (empty($api)) {
@@ -146,7 +147,7 @@ class OAuthController extends SessionController
 
         $api['app_secret'] = $this->getEncryptor()->decrypt($api['app_secret']);
 
-        $api = $this->buildAuthUrls($api);
+        $api = $this->buildAuthUrls($api, $session);
 
         return $api['oauth_version'] == '1.0' ? new OAuth10($api) : new OAuth20($api);
     }
