@@ -13,12 +13,16 @@ class ByAppEncryption
      * @param string $token SAPI token
      * @return string Encrypted $secret by application $componentId
      */
-   public static function encrypt($secret, $componentId, $token, $toConfig = false)
+   public static function encrypt($secret, $componentId, $token = null, $toConfig = false)
     {
-        $client = Client::factory([
-            'token' => $token,
+        $config = [
             'super' => 'docker'
-        ]);
+        ];
+        if (!is_null($token)) {
+            $config['token'] = $token;
+        }
+
+        $client = Client::factory($config);
 
         try {
             return $client->encryptString($componentId, $secret, $toConfig ? ["path" => "configs"] : []);

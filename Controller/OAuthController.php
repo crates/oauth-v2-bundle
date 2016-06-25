@@ -15,6 +15,7 @@ use Keboola\OAuth\OAuth10,
     Keboola\OAuth\AbstractOAuth;
 use Keboola\OAuthV2Bundle\Storage\Session,
     Keboola\OAuthV2Bundle\Encryption\ByAppEncryption;
+use Keboola\Utils\Utils;
 
 /**
  * @todo Use 1 controller and initialize with 1.0 or 2.0 class, that'll take care
@@ -43,7 +44,7 @@ class OAuthController extends SessionController
             $this->checkParams($session->getBag());
         }
 
-        $oAuth = $this->getOAuth($componentId);
+        $oAuth = $this->getOAuth($componentId, $session);
 
         $result = $oAuth->createRedirectData($this->getCallbackUrl($request));
 
@@ -58,7 +59,7 @@ class OAuthController extends SessionController
     {
         $session = $this->createSession();
 
-        $oAuth = $this->getOAuth($componentId);
+        $oAuth = $this->getOAuth($componentId, $session);
 
         $sessionOAuthData = $session->getBag()->has('oauth_data')
             ? unserialize($session->getEncrypted('oauth_data'))
@@ -145,7 +146,42 @@ class OAuthController extends SessionController
 
         $api['app_secret'] = $this->getEncryptor()->decrypt($api['app_secret']);
 
+        $api = $this->buildAuthUrls($api);
+
         return $api['oauth_version'] == '1.0' ? new OAuth10($api) : new OAuth20($api);
+    }
+
+    /**
+     * Replace placeholders from config data (eg 3rd level domain)
+     *
+     * auth_url: https://%%domain%%.zendesk.com/...; token_url: https://%%something%%.zendesk.com/..
+     * in session:
+     * {'domain': 'keboola', 'something': 'maybe-something-else'}
+     *
+     * @param array $api
+     * @return array
+     */
+    protected function buildAuthUrls(array $api, Session $session)
+    {
+        $userDataJson = $session->get('userData');
+
+        if (empty($userDataJson)) {
+            return $api;
+        }
+
+        $userData = Utils::json_decode($userDataJson);
+
+        array_walk($api, function(&$val, $apiKey) {
+            if (substr($apiKey, -4) != '_url') {
+                return;
+            }
+
+            foreach($userData as $key => $value) {
+                $val = str_replace('%%' . $key . '%%', $value, $val);
+            }
+        });
+
+        return $api;
     }
 
     /**
