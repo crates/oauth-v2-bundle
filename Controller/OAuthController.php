@@ -166,19 +166,25 @@ class OAuthController extends SessionController
     {
         $userDataJson = $session->get('userData');
 
-        if (empty($userDataJson)) {
-            return $api;
-        }
+        $userData = empty($userDataJson) ? [] : Utils::json_decode($userDataJson, true);
 
-        $userData = Utils::json_decode($userDataJson);
-
-        array_walk($api, function(&$val, $apiKey) use($userData) {
+        array_walk($api, function(&$url, $apiKey) use($userData) {
             if (substr($apiKey, -4) != '_url') {
                 return;
             }
 
-            foreach($userData as $key => $value) {
-                $val = str_replace('%%' . $key . '%%', $value, $val);
+            preg_match_all('/%%(.*?)%%/', $url, $matches);
+
+            foreach($matches[1] as $match) {
+                if (in_array($match, ['app_key', 'client_id', 'redirect_uri', 'oauth_token'])) {
+                    continue;
+                }
+
+                if (!isset($userData[$match])) {
+                    throw new UserException("The URL requires 'userData' to contain '{$match}'");
+                }
+
+                $url = str_replace('%%' . $match . '%%', $userData[$match], $url);
             }
         });
 
