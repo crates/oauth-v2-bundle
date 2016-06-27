@@ -22,7 +22,8 @@ The callback URL for the API is generated using the `componentId`, into the foll
 
 # Group Authorize
 
-## Generate OAuth token for OAuth applications [/authorize/{componentId}{?token,id,authorizedFor,returnUrl}]
+## Generate OAuth token for OAuth applications [/authorize/{componentId}{?token,id,authorizedFor,returnUrl,userData}]
+If the component uses `%%subdomain%%` in the URL, the authorize request **must** be sent using a form POST request and contain `userData` field.
 
 ### Get a TEST token in browser [GET]
 
@@ -52,6 +53,8 @@ The callback URL for the API is generated using the `componentId`, into the foll
     + authorizedFor: `Someone's account` (optional, string) - Credentials description (eg. account name)
 
     + returnUrl: `http://back.to.ui` (optional, string) - Override the HTTP Referrer
+
+    + userData: `{"subdomain": "keboola"}` (optional, string) - Required if the API uses a `%%subdomain%%` part in the URL
 
 + Request (multipart/form-data; boundary=----WebKitFormBoundaryC5GD12ZfR1D8yZIt)
     + Body
@@ -234,6 +237,7 @@ The response is determined based on the session's stored `referrer` or `returnUr
         ]
 
 ### Add new component [POST]
+You can use `%%subdomain%%` in the URL (eg `https://%%subdomain%%.api.com/oauth/authorize`), which then **requires** an `userData` json to be sent with the auth request to OAuth API, which has to contain a `subdomain` key (eg `{"subdomain": "keboola"}`)
 
 + Request (application/json)
 
