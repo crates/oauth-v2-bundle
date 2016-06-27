@@ -172,7 +172,7 @@ class OAuthController extends SessionController
 
         $userData = Utils::json_decode($userDataJson);
 
-        array_walk($api, function(&$val, $apiKey) {
+        array_walk($api, function(&$val, $apiKey) use($userData) {
             if (substr($apiKey, -4) != '_url') {
                 return;
             }
