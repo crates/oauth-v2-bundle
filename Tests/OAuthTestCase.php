@@ -1,7 +1,11 @@
 <?php
+
+namespace Keboola\OAuthV2Bundle\Tests;
+
+use Keboola\Syrup\Test\WebTestCase;
 use Keboola\Temp\Temp;
 
-class OAuthTestCase extends \PHPUnit_Framework_TestCase
+class OAuthTestCase extends WebTestCase
 {
     /**
      * @var Temp
