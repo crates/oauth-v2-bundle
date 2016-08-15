@@ -1,6 +1,6 @@
 CREATE TABLE `consumers` (
     `component_id` VarChar( 255 ) NOT NULL,
-    `auth_url` VarChar( 255 ) NOT NULL,
+    `auth_url` text NOT NULL,
     `token_url` VarChar( 255 ) NOT NULL,
     `request_token_url` VarChar( 255 ) NULL,
     `app_key` VarChar( 255 ) NOT NULL,
