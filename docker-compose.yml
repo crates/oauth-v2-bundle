@@ -1,0 +1,27 @@
+version: "2"
+services:
+  apache:
+    build: "docker/apache"
+    working_dir: /var/www/html
+    volumes:
+      - ./:/var/www/html
+      - ./docker/apache/connection.conf:/etc/apache2/sites-enabled/connection.conf
+      - ./docker/apache/php.ini:/usr/local/etc/php/php.ini
+    ports:
+      - "8000:80"
+    environment:
+      APPLICATION_ENV: development
+    links:
+      - mysql
+  mysql:
+    build: "docker/mysql"
+    volumes:
+      - ./docker/.mysql-datadir/:/var/lib/mysql
+      - ./Resources/sql/:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: oauth_v2
+      MYSQL_USER: docker
+      MYSQL_PASSWORD: docker
+    ports:
+      - "8701:3306"
