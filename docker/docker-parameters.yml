@@ -1,0 +1,18 @@
+parameters:
+    app_name: 'oauth-v2'
+    components:
+        oauth-v2:
+            bundle: Keboola\OAuthV2Bundle\KeboolaOAuthV2Bundle
+    oauth.providers_db.endpoint: mysql
+    oauth.providers_db.user: docker
+    oauth.providers_db.password: docker
+    oauth.providers_db.db: oauth_v2
+doctrine:
+    dbal:
+        connections:
+            oauth_providers:
+                host: '%oauth.providers_db.endpoint%'
+                dbname: '%oauth.providers_db.db%'
+                user: '%oauth.providers_db.user%'
+                password: '%oauth.providers_db.password%'
+                charset: UTF8

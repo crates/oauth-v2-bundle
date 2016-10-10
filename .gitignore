@@ -10,4 +10,4 @@ composer.phar
 *.cnf
 s3logs
 docker/.mysql-datadir
-/docker/docker-parameters.yml
+docker/parameters_shared.yml
