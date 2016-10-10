@@ -6,3 +6,8 @@ vendor
 .idea
 parameters.yml
 composer.phar
+/.ac-php-conf.json
+*.cnf
+s3logs
+docker/.mysql-datadir
+/docker/docker-parameters.yml
