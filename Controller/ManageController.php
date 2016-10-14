@@ -114,7 +114,7 @@ class ManageController extends BaseController
     public function preExecute(Request $request)
     {
         if (!$this->checkScope('oauth:manage', $request)) {
-            throw new UserException("Insufficient permissions to add API");
+            throw new UserException("Insufficient manage permissions");
         }
     }
 
@@ -133,8 +133,8 @@ class ManageController extends BaseController
      */
     protected function validateApiConfig(\stdClass $api)
     {
-        if (empty($api->oauth_version) || !in_array($api->oauth_version, ['1.0', '2.0'])) {
-            throw new UserException("'oauth_version' must be either '1.0' or '2.0'");
+        if (empty($api->oauth_version) || !in_array($api->oauth_version, ['1.0', '2.0', 'facebook'])) {
+            throw new UserException("'oauth_version' must be either '1.0', '2.0' or 'facebook'");
         }
 
         if ($api->oauth_version == '1.0' && empty($api->request_token_url)) {
