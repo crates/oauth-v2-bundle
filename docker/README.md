@@ -10,6 +10,7 @@ docker-compose build
 docker-compose run --rm apache composer install
 ```
 ### 4. set permissions for cache and s3 logs
+create cache dir first
 docker-compose run --rm apache chmod -R 777 /var/www/html/vendor/keboola/syrup/app/cache
 docker-compose run --rm apache chmod -R 777 /var/www/html/s3logs
 
