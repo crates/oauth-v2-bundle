@@ -24,11 +24,10 @@ class OAuthFacebook extends AbstractOAuth
     {
         $provider = $this->getProvider();
         $helper = $provider->getRedirectLoginHelper();
-        $permissions = ['email', 'manage_pages'];
+        $permissions = ['email', 'manage_pages', 'pages_show_list'];
         $loginUrl = $helper->getLoginUrl($callbackUrl, $permissions);
         return ['url' => $loginUrl];
     }
-
 
     public function createToken($callbackUrl, array $sessionData, array $query)
     {
