@@ -9,6 +9,8 @@ use Keboola\Syrup\Exception\ApplicationException;
 use Keboola\OAuth\AbstractOAuth;
 
 use Facebook\Facebook;
+use Facebook\Exceptions\FacebookSDKException;
+use Facebook\Exceptions\FacebookResponseException;
 
 class OAuthFacebook extends AbstractOAuth
 {
@@ -41,13 +43,12 @@ class OAuthFacebook extends AbstractOAuth
         // Try to get an access token (using the authorization code grant)
         try {
             $accessToken = $helper->getAccessToken();
-        } catch(Facebook\Exceptions\FacebookResponseException $e) {
+        } catch(FacebookResponseException $e) {
             // When Graph returns an error
             throw new ApplicationException('Graph returned an error: ' . $e->getMessage(), $e);
-        } catch(Facebook\Exceptions\FacebookSDKException $e) {
+        } catch(FacebookSDKException $e) {
             // When validation fails or other local issues
             throw new ApplicationException('Facebook SDK returned an error: ' . $e->getMessage(), $e);
-
         }
         catch (Exception $e) {
             throw $e;
@@ -71,7 +72,7 @@ class OAuthFacebook extends AbstractOAuth
           // Exchanges a short-lived access token for a long-lived one
           try {
             $accessToken = $oAuth2Client->getLongLivedAccessToken($accessToken);
-          } catch (Facebook\Exceptions\FacebookSDKException $e) {
+          } catch (FacebookSDKException $e) {
               throw new ApplicationException('Error getting long-lived access token: ' . $helper->getMessage());
           }
         }
