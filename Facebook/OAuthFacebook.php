@@ -5,9 +5,10 @@ use GuzzleHttp\Client,
     GuzzleHttp\Exception\ClientException;
 use Keboola\Utils\Utils;
 use Keboola\Syrup\Exception\UserException;
+use Keboola\Syrup\Exception\ApplicationException;
 use Keboola\OAuth\AbstractOAuth;
 
-use League\OAuth2\Client\Provider\Facebook;
+use Facebook\Facebook;
 
 class OAuthFacebook extends AbstractOAuth
 {
@@ -19,11 +20,11 @@ class OAuthFacebook extends AbstractOAuth
      */
     public function createRedirectData($callbackUrl)
     {
-        $provider = $this->getProvider($callbackUrl);
-        $authUrl = $provider->getAuthorizationUrl([
-            'scope' => ['email'],
-        ]);
-        return ['url' => $authUrl];
+        $provider = $this->getProvider();
+        $helper = $provider->getRedirectLoginHelper();
+        $permissions = ['email', 'manage_pages'];
+        $loginUrl = $helper->getLoginUrl($callbackUrl, $permissions);
+        return ['url' => $loginUrl];
     }
 
 
@@ -32,28 +33,65 @@ class OAuthFacebook extends AbstractOAuth
         if (empty($query['code'])) {
             throw new UserException("'code' not returned in query from the auth API!");
         }
-        $provider = $this->getProvider($callbackUrl);
-        // Try to get an access token (using the authorization code grant)
+        $provider = $this->getProvider();
+        $helper = $provider->getRedirectLoginHelper();
+        // CSRF
+        $_SESSION['FBRLH_state'] = $_GET['state'];
 
+        // Try to get an access token (using the authorization code grant)
         try {
-            $token = $provider->getAccessToken('authorization_code', [
-                'code' => $query['code']
-            ]);
-            $token = $provider->getLongLivedAccessToken($token);
-        } catch (Exception $e) {
+            $accessToken = $helper->getAccessToken();
+        } catch(Facebook\Exceptions\FacebookResponseException $e) {
+            // When Graph returns an error
+            throw new ApplicationException('Graph returned an error: ' . $e->getMessage(), $e);
+        } catch(Facebook\Exceptions\FacebookSDKException $e) {
+            // When validation fails or other local issues
+            throw new ApplicationException('Facebook SDK returned an error: ' . $e->getMessage(), $e);
+
+        }
+        catch (Exception $e) {
             throw $e;
         }
 
-        return $token;
-        // return Utils::json_decode($response->getBody(true));
+        if (!isset($accessToken)) {
+            if ($helper->getError()) {
+                $msg = 'Unauthorized: Error:' . $helper->getError() . "\n";
+                $msg .= 'Error Code:' . $helper->getErrorCode() . "\n";
+                $msg .= 'Error Reason:' . $helper->getErrorReason() . "\n";
+                $msg .= 'Error Description:' . $helper->getErrorDescription();
+                throw new UserException($msg);
+            } else {
+                throw new UserException('No accesss token retrieved. Bad Request');
+            }
+        }
+        // The OAuth 2.0 client handler helps us manage access tokens
+        $oAuth2Client = $provider->getOAuth2Client();
+
+        if (! $accessToken->isLongLived()) {
+          // Exchanges a short-lived access token for a long-lived one
+          try {
+            $accessToken = $oAuth2Client->getLongLivedAccessToken($accessToken);
+          } catch (Facebook\Exceptions\FacebookSDKException $e) {
+              throw new ApplicationException('Error getting long-lived access token: ' . $helper->getMessage());
+          }
+        }
+        // var_dump($accessToken);
+        // die;
+        $result = [
+            "token" => $accessToken->getValue(),
+            "expires" => $accessToken->getExpiresAt()->getTimestamp(),
+            "isLongLived" => $accessToken->isLongLived()
+        ];
+        return $result;
     }
 
-    private function getProvider($callbackUrl) {
+    private function getProvider() {
         $provider = new Facebook([
-            'clientId'          => $this->appKey,
-            'clientSecret'      => $this->appSecret,
-            'redirectUri'       => $callbackUrl,
-            'graphApiVersion'   => 'v2.7',
+            'app_id'          => $this->appKey,
+            'app_secret'      => $this->appSecret,
+            // 'redirectUri'       => $callbackUrl,
+            'default_graph_version' => 'v2.7',
+            'persistent_data_handler'=>'session'
         ]);
         return $provider;
     }
