@@ -75,11 +75,9 @@ class OAuthFacebook extends AbstractOAuth
               throw new ApplicationException('Error getting long-lived access token: ' . $helper->getMessage());
           }
         }
-        // var_dump($accessToken);
-        // die;
         $result = [
             "token" => $accessToken->getValue(),
-            "expires" => $accessToken->getExpiresAt()->getTimestamp(),
+            "expires" => $accessToken->getExpiresAt(),
             "isLongLived" => $accessToken->isLongLived()
         ];
         return $result;
