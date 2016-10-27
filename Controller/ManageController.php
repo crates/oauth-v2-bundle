@@ -177,6 +177,18 @@ class ManageController extends BaseController
                 $validated->{$col} = $api->{$col};
             }
         }
+        // extra check for fb auth - the permissions field that will
+        // be stored under auth_url column in db
+        if ($api->oauth_version == 'facebook')
+        {
+            $permissionsDbAlias = 'auth_url';
+            if (empty($api->permissions)) {
+                throw new UserException("Missing parameter 'permissions'.");
+            }
+            $validated->{$permissionsDbAlias} = $api->permissions;
+            // make sure we dont't break db constraints
+            $validated->token_url = '';
+        }
 
         return $validated;
     }
