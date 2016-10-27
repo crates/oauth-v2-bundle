@@ -145,12 +145,13 @@ class ManageController extends BaseController
          * 0 = optional
          * 1 = required for 1.0
          * 2 = required for 2.0
-         * 3 = required for 1.0 & 2.0
+         * 3 = required for 1.0 & 2.0 & facebook
+         * 4 = required for 1.0 & 2.0 but not for facebook
          */
         $cols = [
             'component_id'=> 3,
-            'auth_url'=> 3,
-            'token_url'=> 3,
+            'auth_url'=> 4,
+            'token_url'=> 4,
             'request_token_url'=> 1,
             'app_key'=> 3,
             'app_secret'=> 3,
@@ -167,6 +168,7 @@ class ManageController extends BaseController
                 ($flag == 3)
                 || ($flag == 1 && $api->oauth_version == '1.0')
                 || ($flag == 2 && $api->oauth_version == '2.0')
+                || ($flag == 4 && $api->oauth_version != 'facebook')
             ) {
                 if (empty($api->{$col})) {
                     throw new UserException("Missing parameter '{$col}'.");
