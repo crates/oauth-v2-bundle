@@ -16,6 +16,7 @@ use Keboola\OAuth\OAuth10,
 use Keboola\OAuthV2Bundle\Storage\Session,
     Keboola\OAuthV2Bundle\Encryption\ByAppEncryption;
 use Keboola\Utils\Utils;
+use Keboola\OAuthV2Bundle\Facebook\OAuthFacebook;
 
 /**
  * @todo Use 1 controller and initialize with 1.0 or 2.0 class, that'll take care
@@ -43,6 +44,7 @@ class OAuthController extends SessionController
         if ($validateRequest) {
             $this->checkParams($session->getBag());
         }
+
 
         $oAuth = $this->getOAuth($componentId, $session);
 
@@ -149,7 +151,18 @@ class OAuthController extends SessionController
 
         $api = $this->buildAuthUrls($api, $session);
 
-        return $api['oauth_version'] == '1.0' ? new OAuth10($api) : new OAuth20($api);
+        switch ($api['oauth_version']) {
+        case '1.0':
+            return new OAuth10($api);
+        case '2.0':
+            return new OAuth20($api);
+        case 'facebook':
+            return new OAuthFacebook($api);
+        default:
+            throw new UserException("Unknown oauth version: '{$api['oauth_version']}' ");
+        }
+
+        //return $api['oauth_version'] == '1.0' ? new OAuth10($api) : new OAuth20($api) ;
     }
 
     /**

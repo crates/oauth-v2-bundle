@@ -114,7 +114,7 @@ class ManageController extends BaseController
     public function preExecute(Request $request)
     {
         if (!$this->checkScope('oauth:manage', $request)) {
-            throw new UserException("Insufficient permissions to add API");
+            throw new UserException("Insufficient manage permissions");
         }
     }
 
@@ -133,8 +133,8 @@ class ManageController extends BaseController
      */
     protected function validateApiConfig(\stdClass $api)
     {
-        if (empty($api->oauth_version) || !in_array($api->oauth_version, ['1.0', '2.0'])) {
-            throw new UserException("'oauth_version' must be either '1.0' or '2.0'");
+        if (empty($api->oauth_version) || !in_array($api->oauth_version, ['1.0', '2.0', 'facebook'])) {
+            throw new UserException("'oauth_version' must be either '1.0', '2.0' or 'facebook'");
         }
 
         if ($api->oauth_version == '1.0' && empty($api->request_token_url)) {
@@ -145,12 +145,13 @@ class ManageController extends BaseController
          * 0 = optional
          * 1 = required for 1.0
          * 2 = required for 2.0
-         * 3 = required for 1.0 & 2.0
+         * 3 = required for 1.0 & 2.0 & facebook
+         * 4 = required for 1.0 & 2.0 but not for facebook
          */
         $cols = [
             'component_id'=> 3,
-            'auth_url'=> 3,
-            'token_url'=> 3,
+            'auth_url'=> 4,
+            'token_url'=> 4,
             'request_token_url'=> 1,
             'app_key'=> 3,
             'app_secret'=> 3,
@@ -167,6 +168,7 @@ class ManageController extends BaseController
                 ($flag == 3)
                 || ($flag == 1 && $api->oauth_version == '1.0')
                 || ($flag == 2 && $api->oauth_version == '2.0')
+                || ($flag == 4 && $api->oauth_version != 'facebook')
             ) {
                 if (empty($api->{$col})) {
                     throw new UserException("Missing parameter '{$col}'.");
@@ -175,7 +177,23 @@ class ManageController extends BaseController
                 $validated->{$col} = $api->{$col};
             }
         }
+        // extra check for fb auth - the permissions field that will
+        // be stored under auth_url column in db
+        if ($api->oauth_version == 'facebook')
+        {
+            $permissionsDbAlias = 'auth_url';
+            $versionDbAlias = 'token_url';
+            if (empty($api->permissions)) {
+                throw new UserException("Missing parameter 'permissions'.");
+            }
+            $validated->{$permissionsDbAlias} = $api->permissions;
 
+            if (empty($api->graph_api_version)) {
+                $validated->{$versionDbAlias} = '';
+            } else {
+                $validated->{$versionDbAlias} = $api->graph_api_version;
+            }
+        }
         return $validated;
     }
 

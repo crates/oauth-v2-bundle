@@ -121,7 +121,7 @@ The response is determined based on the session's stored `referrer` or `returnUr
                 "uid": "12345678"
             }
 
-+ Response 302 
++ Response 302
 
 # Group Credentials
 
@@ -161,7 +161,7 @@ Content of *data* attribute in the request body is component specific.
 + Parameters
 
     + componentId: `yourApp` (required, string) - Identifier of the KBC component
-    
+
 + Request (application/json)
 
     + Headers
@@ -170,7 +170,7 @@ Content of *data* attribute in the request body is component specific.
             X-StorageApi-Token: Your-Sapi-Token
 
     + Body
-    
+
             {
                 "id": "main",
                 "authorizedFor": "Myself",
@@ -280,12 +280,13 @@ Content of *data* attribute in the request body is component specific.
         ]
 
 ### Add new component [POST]
-You can use `%%subdomain%%` in the URL (eg `https://%%subdomain%%.api.com/oauth/authorize`), which then **requires** an `userData` json to be sent with the auth request to OAuth API, which has to contain a `subdomain` key (eg `{"subdomain": "keboola"}`)
+You can use `%%subdomain%%` in the URL (eg `https://%%subdomain%%.api.com/oauth/authorize`), which then **requires** an `userData` json to be sent with the auth request to OAuth API, which has to contain a `subdomain` key (eg `{"subdomain": "keboola"}`).
+To add `facebook` api component, set `oauth_version` parameter to `facebook` and provide additional `permissions` parameter(coma separated list of values from https://developers.facebook.com/docs/facebook-login/permissions/) and optional `graph_api_version`(default v2.8, or look here https://developers.facebook.com/docs/apps/changelog). For `facebook` auth parameters `auth_url`, `token_url` and `request_token_url` are not required. Facebook authentication will guide user through authorization proccess to retrieve long-lived access token.
 
 + Request (application/json)
 
     + Attributes
-    
+
         + component_id: `wr-dropbox` (string, required) - Identifier of the KBC component
 
         + friendly_name: `Your Application` (string, required) - Name of the application
@@ -294,20 +295,21 @@ You can use `%%subdomain%%` in the URL (eg `https://%%subdomain%%.api.com/oauth/
 
         + app_secret: `f86q4f6e4f64q6f486q` (string, required) - Consumer secret / Client secret. Stored encrypted
 
-        + auth_url: `https://www.dropbox.com/1/oauth2/authorize?response_type=code&client_id=%%app_key%%&redirect_uri=%%redirect_uri%%&state=%%hash%%` (string, required) - Authentication URL
-        
-            For **1.0**, `%%oauth_token%%` is replaced by `oauth_token` retrieved by initial POST to API. 
-            For **2.0**, `%%redirect_uri%%` and `%%app_key%%` are replaced by generated redirect URI (to the OAuth application) and `app_key`. 
-            [1.0 Description](http://oauth.net/core/1.0/#auth_step2) 
+        + auth_url: `https://www.dropbox.com/1/oauth2/authorize?response_type=code&client_id=%%app_key%%&redirect_uri=%%redirect_uri%%&state=%%hash%%` (string, required) - Authentication URL. Required for oauth 1.0 and 2.0
+
+            For **1.0**, `%%oauth_token%%` is replaced by `oauth_token` retrieved by initial POST to API.
+            For **2.0**, `%%redirect_uri%%` and `%%app_key%%` are replaced by generated redirect URI (to the OAuth application) and `app_key`.
+            For **facebook** not required
+            [1.0 Description](http://oauth.net/core/1.0/#auth_step2)
             [2.0 Description](http://tools.ietf.org/html/rfc6749#section-4.1.1)
 
-        + token_url: `https://api.dropbox.com/1/oauth2/token` (string, required) - Access token url. Used in the last step of OAuth process. 
-        
-            [1.0](http://oauth.net/core/1.0/#auth_step3) 
+        + token_url: `https://api.dropbox.com/1/oauth2/token` (string, required) - Required for oauth 1.0 and 2.0. Access token url. Used in the last step of OAuth process. For **facebook** not required.
+
+            [1.0](http://oauth.net/core/1.0/#auth_step3)
             [2.0](https://tools.ietf.org/html/rfc6749#section-3.2)
 
-        + request_token_url: `https://api.twitter.com/oauth/request_token` (string, optional) - Required for OAuth 
-        
+        + request_token_url: `https://api.twitter.com/oauth/request_token` (string, optional) - Required for OAuth 1.0 only
+
             [1.0](http://oauth.net/core/1.0/#auth_step1)
 
         + oauth_version: `2.0` (enum[string], required) - OAuth version
@@ -315,7 +317,10 @@ You can use `%%subdomain%%` in the URL (eg `https://%%subdomain%%.api.com/oauth/
             + Members
                 + `1.0` - For OAuth 1.0
                 + `2.0` - For OAuth 2.0
-                
+                + `facebook` - For Facebook OAuth - retrieves facebook long-lived access token
+        + permissions: `pages_show_list, manage_pages` (enum[string], optional) - for facebook oauth, a coma separated list of permissions for facebook
+        + graph_api_version: `v2.8` (enum[string], optional) - for facebook oauth ,version of fb graph api used to authorize an account. Default `v2.8`
+
     + Headers
 
             Accept: application/json
@@ -373,6 +378,16 @@ You can use `%%subdomain%%` in the URL (eg `https://%%subdomain%%.api.com/oauth/
                     "oauth_version": {
                         "type": "string",
                         "required": true
+                    },
+                    "permissions": {
+                        "type": "string",
+                        "required": true,
+                        "description": "Required for facebook. A comma separated list of permissions"
+                    },
+                    "graph_api_version": {
+                        "type": "string",
+                        "required": false,
+                        "description": "Optional for facebook. Version of fb graph api used to authorize user an account. Default v2.8"
                     }
                 }
             }
