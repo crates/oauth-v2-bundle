@@ -15,6 +15,7 @@ use Facebook\Exceptions\FacebookResponseException;
 class OAuthFacebook extends AbstractOAuth
 {
     const GRANT_TYPE = 'authorization_code';
+    const DEFAULT_GRAPH_VERSION = 'v2.8';
 
     /**
      * @todo NEEDS app_key/secret, auth_url, request_token_url (1.0)
@@ -78,7 +79,8 @@ class OAuthFacebook extends AbstractOAuth
         $result = [
             "token" => $accessToken->getValue(),
             "expires" => $accessToken->getExpiresAt(),
-            "isLongLived" => $accessToken->isLongLived()
+            "isLongLived" => $accessToken->isLongLived(),
+            "version" => $this->getGraphApiVersion()
         ];
         return $result;
     }
@@ -88,10 +90,15 @@ class OAuthFacebook extends AbstractOAuth
             'app_id'          => $this->appKey,
             'app_secret'      => $this->appSecret,
             // 'redirectUri'       => $callbackUrl,
-            'default_graph_version' => 'v2.7',
+            'default_graph_version' => $this->getGraphApiVersion(),
             'persistent_data_handler'=>'session'
         ]);
         return $provider;
+    }
+
+    private function getGraphApiVersion() {
+        $version = $this->tokenUrl;
+        return empty($version) ? self::DEFAULT_GRAPH_VERSION : $version;
     }
 
 

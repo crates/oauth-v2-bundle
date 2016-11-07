@@ -182,14 +182,18 @@ class ManageController extends BaseController
         if ($api->oauth_version == 'facebook')
         {
             $permissionsDbAlias = 'auth_url';
+            $versionDbAlias = 'token_url';
             if (empty($api->permissions)) {
                 throw new UserException("Missing parameter 'permissions'.");
             }
             $validated->{$permissionsDbAlias} = $api->permissions;
-            // make sure we dont't break db constraints
-            $validated->token_url = '';
-        }
 
+            if (empty($api->graph_api_version)) {
+                $validated->{$versionDbAlias} = '';
+            } else {
+                $validated->{$versionDbAlias} = $api->graph_api_version;
+            }
+        }
         return $validated;
     }
 
