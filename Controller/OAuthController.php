@@ -125,7 +125,7 @@ class OAuthController extends SessionController
                 'component_id' => $componentId,
                 'project_id' => $tokenDetail['owner']['id'],
                 'creator' => json_encode($creator),
-                'data' => $data, //ByAppEncryption::encrypt($data, $componentId, $token, true),
+                'data' => ByAppEncryption::encrypt($data, $componentId, $token, true),
                 'authorized_for' => $authorizedFor,
                 'created' => date("Y-m-d H:i:s")
             ]);
