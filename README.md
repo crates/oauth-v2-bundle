@@ -249,17 +249,20 @@ The `X-KBC-ManageApiToken` must have `oauth:manage` scope.
 
     + app_secret = `` (required, string, `f86q4f6e4f64q6f486q`) ... Consumer Secret / Client secret. Stored encrypted
 
-    + auth_url = `` (required, string, `https://www.dropbox.com/1/oauth2/authorize?response_type=code&client_id=%%client_id%%&redirect_uri=%%redirect_uri%%&state=%%hash%%`) ... For **1.0**, `%%oauth_token%%` is replaced by `oauth_token` retrieved by initial POST to API. For **2.0**, `%%redirect_uri%%` and `%%client_id%%` are replaced by generated redirect URI (to the OAuth application) and `app_key`.
+    + auth_url = `` (required, string, `https://www.dropbox.com/1/oauth2/authorize?response_type=code&client_id=%%client_id%%&redirect_uri=%%redirect_uri%%&state=%%hash%%`) ... For **1.0**, `%%oauth_token%%` is replaced by `oauth_token` retrieved by initial POST to API. For **2.0**, `%%redirect_uri%%` and `%%client_id%%` are replaced by generated redirect URI (to the OAuth application) and `app_key`. For **facebook** not required.
 
-    + token_url = `` (required, string, `https://api.dropbox.com/1/oauth2/token`) ... Access token url. Used in the last step of OAuth process. [1.0](http://oauth.net/core/1.0/#auth_step3); [2.0](https://tools.ietf.org/html/rfc6749#section-3.2)
+    + token_url = `` (required, string, `https://api.dropbox.com/1/oauth2/token`) ... Access token url. Used in the last step of OAuth process. Required for auth versions [1.0](http://oauth.net/core/1.0/#auth_step3) and [2.0](https://tools.ietf.org/html/rfc6749#section-3.2). For **facebook** not required.
 
-    + request_token_url = `` (optional, string, `https://api.twitter.com/oauth/request_token`) ... Required for OAuth 1.0
+    + request_token_url = `` (optional, string, `https://api.twitter.com/oauth/request_token`) ... Required for OAuth 1.0 only.
 
     + oauth_version: `2.0` (enum[string], required) - OAuth version
 
         + Members
             + `1.0` - For OAuth 1.0
             + `2.0` - For OAuth 2.0
+            + `facebook` - For Facebook OAuth - retrieves facebook long-lived access token
+    + permissions: `pages_show_list, manage_pages` (enum[string], optional) - for **facebook** oauth, a coma separated list of permissions for facebook from https://developers.facebook.com/docs/facebook-login/permissions/
+    + graph_api\_version: `v2.8` (enum[string], optional) - for **facebook** oauth ,version of graph api used to authorize an account. Default `v2.8` or value from here https://developers.facebook.com/docs/apps/changelog
 
 + Request (application/json)
 
@@ -315,12 +318,23 @@ The `X-KBC-ManageApiToken` must have `oauth:manage` scope.
                     "request_token_url": {
                         "type": "string",
                         "required": false,
-                        "description": "Required for OAuth 1.0"
+                        "description": "Required for OAuth 1.0 only"
                     },
                     "oauth_version": {
                         "type": "string",
                         "required": true
+                    },
+                    "permissions": {
+                        "type": "string",
+                        "required": true,
+                        "description": "Required for facebook. A comma separated list of permissions"
+                    },
+                    "graph_api_version": {
+                        "type": "string",
+                        "required": false,
+                        "description": "Optional for facebook. Version of fb graph api used to authorize user an account. Default v2.8"
                     }
+
                 }
             }
 
@@ -348,7 +362,3 @@ The `X-KBC-ManageApiToken` must have `oauth:manage` scope.
             X-KBC-ManageApiToken: Manage-token
 
 + Response 204
-
-
-
-
