@@ -8,7 +8,7 @@ use Keboola\Syrup\Controller\ApiController,
 use Symfony\Component\HttpFoundation\Response,
     Symfony\Component\HttpFoundation\JsonResponse,
     Symfony\Component\HttpFoundation\Request;
-use function Keboola\Utils\jsonDecode;
+use Keboola\Utils\Utils;
 
 class CredentialsController extends ApiController
 {
@@ -44,7 +44,7 @@ class CredentialsController extends ApiController
             [
                 'id' => $id,
                 'authorizedFor' => $creds['authorized_for'],
-                'creator' => jsonDecode($creds['creator']),
+                'creator' => Utils::json_decode($creds['creator']),
                 'created' => $creds['created'],
                 '#data' => $creds['data'],
                 'oauthVersion' => $consumer['oauth_version'],
@@ -111,7 +111,7 @@ class CredentialsController extends ApiController
         );
 
         foreach($result as &$record) {
-            $record['creator'] = jsonDecode($record['creator']);
+            $record['creator'] = Utils::json_decode($record['creator']);
         }
 
         return new JsonResponse($result, 200, [
@@ -124,7 +124,7 @@ class CredentialsController extends ApiController
     public function addAction($componentId, Request $request)
     {
         $token = $this->storageApi->verifyToken();
-        $credentials = $this->validateCredentials(jsonDecode($request->getContent()));
+        $credentials = $this->validateCredentials(Utils::json_decode($request->getContent()));
         $conn = $this->getConnection();
 
         $consumer = $conn->fetchAssoc(
