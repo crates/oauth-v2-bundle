@@ -3,6 +3,7 @@ namespace Keboola\OAuthV2Bundle\Facebook;
 
 use GuzzleHttp\Client,
     GuzzleHttp\Exception\ClientException;
+use Keboola\Utils\Utils;
 use Keboola\Syrup\Exception\UserException;
 use Keboola\Syrup\Exception\ApplicationException;
 use Keboola\OAuth\AbstractOAuth;

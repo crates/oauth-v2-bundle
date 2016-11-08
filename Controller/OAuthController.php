@@ -15,7 +15,7 @@ use Keboola\OAuth\OAuth10,
     Keboola\OAuth\AbstractOAuth;
 use Keboola\OAuthV2Bundle\Storage\Session,
     Keboola\OAuthV2Bundle\Encryption\ByAppEncryption;
-use function Keboola\Utils\jsonDecode;
+use Keboola\Utils\Utils;
 use Keboola\OAuthV2Bundle\Facebook\OAuthFacebook;
 
 /**
@@ -179,7 +179,7 @@ class OAuthController extends SessionController
     {
         $userDataJson = $session->get('userData');
 
-        $userData = empty($userDataJson) ? [] : jsonDecode($userDataJson, true);
+        $userData = empty($userDataJson) ? [] : Utils::json_decode($userDataJson, true);
 
         array_walk($api, function(&$url, $apiKey) use($userData) {
             if (substr($apiKey, -4) != '_url') {
