@@ -5,41 +5,37 @@
 ```bash
 docker-compose build
 ```
-### 3. Run composer install
+or in docker directory run
 ```bash
-docker-compose run --rm apache composer install
+make build-images
 ```
-### 4. set permissions for cache and s3 logs
-create cache dir first
-docker-compose run --rm apache chmod -R 777 /var/www/html/vendor/keboola/syrup/app/cache
-docker-compose run --rm apache chmod -R 777 /var/www/html/s3logs
-
-### 5. copy parameters
-##### parameters.yml
+### 3. Setup devel environment
+go to docker directory
 ```bash
-cp docker/docker-parameters.yml ./vendor/keboola/syrup/app/config/parameters.yml
+cd ./docker
 ```
-##### shared_arameters.yml
-You must download `shared_parameters.yml` from s3 bucket `keboola-configs-testing` and copy accordingly to `./vendor/keboola/syrup/app/config/`
+and then having file `parameters_shared.yml` prepared in the current directory(docker) run make command that prepares everything
+```bash
+make docker-dev
+```
+this command cleans vendor dir then prepares cache dir,runs composer install, set 777 permissions on vendor dir and copies both parameters files
 
-
-### 6. Adjust logs
-Instead of uploading logs to S3 rewrite function `uploadString` in `/vendor/keboola/syrup/src/Keboola/Syrup/Aws/S3/Uploader.php` to upload log files locally such as:
-```php
-    public function uploadString($name, $content, $contentType = 'text/plain')
-    {
-        $s3FileName = sprintf('%s-%s-%s', date('Y/m/d/Y-m-d-H-i-s'), uniqid(), $name);
-        $localfilename = '/var/www/html/s3logs/' . $s3FileName;
-        (new \Symfony\Component\Filesystem\Filesystem())->dumpFile($localfilename, $content);
-        return $localfilename;
-    }
+### 4. Adjust logs
+Run the foolowing command to adjust logs to dump the exceptions log directly to the screen.
+```bash
+sed -i '' -e '/echo json_encode($response);/a\
+var_dump($logData); die;' "../vendor/keboola/syrup/src/Keboola/Syrup/Debug/ExceptionHandler.php"
 ```
 Logs are then found in `./s3Logs` folder.
 
-### 7. Running app
+### 5. Running app
 run all services
 ```bash
 docker-compose up
+```
+or from docker dir
+```bash
+make up
 ```
 
 The api is then running on the following URL:
@@ -48,6 +44,10 @@ The api is then running on the following URL:
 To run bash on the running server type:
 ```bash
 docker-compose run --rm apache bash
+```
+or from docker
+```bash
+make bash
 ```
 
 ## Database
