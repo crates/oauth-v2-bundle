@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "39c8756310ae9c498a25097a12878eee",
-    "content-hash": "d3ef9c4f07ad903c24bbabc2f5dceb23",
+    "hash": "0109951d1dc96ef898f6a52b06b2d3c0",
+    "content-hash": "c47e957064718089d382e164af26c83b",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -1621,7 +1621,7 @@
         },
         {
             "name": "keboola/oauth",
-            "version": "dev-master",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/php-oauth.git",
@@ -2247,16 +2247,16 @@
         },
         {
             "name": "paragonie/random_compat",
-            "version": "v2.0.3",
+            "version": "v2.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paragonie/random_compat.git",
-                "reference": "c0125896dbb151380ab47e96c621741e79623beb"
+                "reference": "a9b97968bcde1c4de2a5ec6cbd06a0f6c919b46e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paragonie/random_compat/zipball/c0125896dbb151380ab47e96c621741e79623beb",
-                "reference": "c0125896dbb151380ab47e96c621741e79623beb",
+                "url": "https://api.github.com/repos/paragonie/random_compat/zipball/a9b97968bcde1c4de2a5ec6cbd06a0f6c919b46e",
+                "reference": "a9b97968bcde1c4de2a5ec6cbd06a0f6c919b46e",
                 "shasum": ""
             },
             "require": {
@@ -2291,7 +2291,7 @@
                 "pseudorandom",
                 "random"
             ],
-            "time": "2016-10-17 15:23:22"
+            "time": "2016-11-07 23:38:38"
         },
         {
             "name": "pimple/pimple",
@@ -4170,18 +4170,9 @@
             "time": "2013-01-13 10:24:48"
         }
     ],
-    "aliases": [
-        {
-            "alias": "0.1.0",
-            "alias_normalized": "0.1.0.0",
-            "version": "9999999-dev",
-            "package": "keboola/oauth"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "keboola/oauth": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
