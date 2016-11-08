@@ -8,7 +8,6 @@ use Keboola\Syrup\Controller\BaseController,
 use Symfony\Component\HttpFoundation\Response,
     Symfony\Component\HttpFoundation\JsonResponse,
     Symfony\Component\HttpFoundation\Request;
-use Keboola\Utils\Utils;
 use Keboola\ManageApi\Client,
     Keboola\ManageApi\ClientException;
 use Keboola\OAuthV2Bundle\Encryption\ByAppEncryption;
@@ -69,7 +68,7 @@ class ManageController extends BaseController
 
         $conn = $this->getConnection();
 
-        $api = $this->validateApiConfig(Utils::json_decode($request->getContent()));
+        $api = $this->validateApiConfig(\Keboola\Utils\jsonDecode($request->getContent()));
         $api->app_secret_docker = ByAppEncryption::encrypt($api->app_secret, $api->component_id, $sapiToken['token']);
         $api->app_secret = $this->encryptBySelf($api->app_secret);
 
