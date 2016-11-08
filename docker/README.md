@@ -1,16 +1,17 @@
 ## Guide To Setup Local Development via Docker
-### 1. For OSX install dlite according to [keboola/connection setup](https://github.com/keboola/connection/blob/master/DOCKER.md#mac-osx)
+### 1. Istall docker
+For OSX install dlite according to [keboola/connection setup](https://github.com/keboola/connection/blob/master/DOCKER.md#mac-osx)
 
 ### 2. Build docker services
 ```bash
 docker-compose build
 ```
-or in docker directory run
+or in `docker` directory run
 ```bash
 make build-images
 ```
 ### 3. Setup devel environment
-go to docker directory
+go to `docker` directory
 ```bash
 cd ./docker
 ```
@@ -18,22 +19,26 @@ and then having file `parameters_shared.yml` prepared in the current directory(d
 ```bash
 make docker-dev
 ```
-this command cleans vendor dir then prepares cache dir,runs composer install, set 777 permissions on vendor dir and copies both parameters files
+this command does the following:
+- cleans vendor dir
+- prepares cache dir
+- runs composer install (requires interaction during installation to type `s` - skip copying parameters.yml )
+- set 777 permissions on vendor dir
+- copies both parameters files
 
 ### 4. Adjust logs
-Run the foolowing command to adjust logs to dump the exceptions log directly to the screen.
+Run the foolowing command from `docker` dir to adjust logs to dump the exceptions log directly to the screen.
 ```bash
 sed -i '' -e '/echo json_encode($response);/a\
 var_dump($logData); die;' "../vendor/keboola/syrup/src/Keboola/Syrup/Debug/ExceptionHandler.php"
 ```
-Logs are then found in `./s3Logs` folder.
 
 ### 5. Running app
 run all services
 ```bash
 docker-compose up
 ```
-or from docker dir
+or from `docker` dir
 ```bash
 make up
 ```
@@ -45,7 +50,7 @@ To run bash on the running server type:
 ```bash
 docker-compose run --rm apache bash
 ```
-or from docker
+or from `docker` dir
 ```bash
 make bash
 ```
