@@ -4,6 +4,7 @@ namespace Keboola\OAuthV2Bundle\Encryption;
 use Keboola\Syrup\Client,
     Keboola\Syrup\ClientException;
 use Keboola\Syrup\Exception\UserException;
+use Keboola\StorageApi\Client as StorageApi;
 
 class ByAppEncryption
 {
@@ -13,8 +14,13 @@ class ByAppEncryption
      * @param string $token SAPI token
      * @return string Encrypted $secret by application $componentId
      */
-    public static function encrypt($secret, $componentId, $token = null, $toConfig = false, $storageApiClient)
+    public static function encrypt($secret, $componentId, $token = null, $toConfig = false, $sapiUrl)
     {
+        $storageApiClient = new StorageApi([
+            "token" => $token,
+            "userAgent" => 'oauth-v2',
+            "url" => $sapiUrl
+        ]);
         $components = $storageApiClient->indexAction()["components"];
         $syrupApiUrl = null;
         foreach ($components as $component) {
