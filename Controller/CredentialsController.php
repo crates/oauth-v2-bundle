@@ -142,7 +142,8 @@ class CredentialsController extends ApiController
         ];
 
         $data = json_encode($credentials->data);
-        $dataEncrypted = ByAppEncryption::encrypt($data, $componentId, $token['token'], true);
+        $storageApiClient = $this->container->get('syrup.storage_api')->getClient();
+        $dataEncrypted = ByAppEncryption::encrypt($data, $componentId, $token['token'], true, $storageApiClient);
         $created = date("Y-m-d H:i:s");
 
         try {

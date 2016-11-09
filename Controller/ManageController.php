@@ -69,7 +69,8 @@ class ManageController extends BaseController
         $conn = $this->getConnection();
 
         $api = $this->validateApiConfig(\Keboola\Utils\jsonDecode($request->getContent()));
-        $api->app_secret_docker = ByAppEncryption::encrypt($api->app_secret, $api->component_id, $sapiToken['token']);
+        $storageApiClient = $this->container->get('syrup.storage_api')->getClient();
+        $api->app_secret_docker = ByAppEncryption::encrypt($api->app_secret, $api->component_id, $sapiToken['token'], false, $storageApiClient);
         $api->app_secret = $this->encryptBySelf($api->app_secret);
 
         try {

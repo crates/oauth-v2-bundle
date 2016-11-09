@@ -118,14 +118,14 @@ class OAuthController extends SessionController
         ];
 
         $data = json_encode($result);
-
+        $storageApiClient = $this->container->get('syrup.storage_api')->getClient();
         try {
             $this->connection->insert('credentials', [
                 'id' => $session->get('id'),
                 'component_id' => $componentId,
                 'project_id' => $tokenDetail['owner']['id'],
                 'creator' => json_encode($creator),
-                'data' => ByAppEncryption::encrypt($data, $componentId, $token, true),
+                'data' => ByAppEncryption::encrypt($data, $componentId, $token, true, $storageApiClient),
                 'authorized_for' => $authorizedFor,
                 'created' => date("Y-m-d H:i:s")
             ]);
