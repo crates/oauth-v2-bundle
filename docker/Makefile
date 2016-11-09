@@ -32,3 +32,5 @@ docker-dev: clean-all composer-install setup-dirs copy-parameters-yml adjust-log
 
 build-images:
 	docker-compose build
+reset-db:
+	sudo rm ./.mysql-datadir/ -rf
