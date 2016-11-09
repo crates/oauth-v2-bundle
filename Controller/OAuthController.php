@@ -248,7 +248,8 @@ class OAuthController extends SessionController
     {
         $sapi = new StorageApi([
             "token" => $token,
-            "userAgent" => 'oauth-v2'
+            "userAgent" => 'oauth-v2',
+            "url" => $this->container->getParameter('storage_api.url'),
         ]);
 
         try {
