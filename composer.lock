@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "0109951d1dc96ef898f6a52b06b2d3c0",
-    "content-hash": "c47e957064718089d382e164af26c83b",
+    "hash": "47a9c00081e18a66f4d332efed37eb8c",
+    "content-hash": "0dc7d47e6570473b1e72f519997d98eb",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -1621,16 +1621,16 @@
         },
         {
             "name": "keboola/oauth",
-            "version": "1.0.0",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/php-oauth.git",
-                "reference": "22022640309bd420ad9c3d6e554c87ab34c9597e"
+                "reference": "b9133786cecc912df99e79bc4ca1bf9ba7665cc4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/php-oauth/zipball/22022640309bd420ad9c3d6e554c87ab34c9597e",
-                "reference": "22022640309bd420ad9c3d6e554c87ab34c9597e",
+                "url": "https://api.github.com/repos/keboola/php-oauth/zipball/b9133786cecc912df99e79bc4ca1bf9ba7665cc4",
+                "reference": "b9133786cecc912df99e79bc4ca1bf9ba7665cc4",
                 "shasum": ""
             },
             "require": {
@@ -1663,7 +1663,7 @@
             "keywords": [
                 "oauth"
             ],
-            "time": "2016-11-07 16:11:20"
+            "time": "2016-11-08 14:52:39"
         },
         {
             "name": "keboola/php-encryption",
