@@ -14,6 +14,9 @@ use Symfony\Component\HttpFoundation\Response,
 use Doctrine\DBAL\Connection;
 use Keboola\OAuthV2Bundle\Storage\Session;
 
+use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
+use Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler;
+
 /**
  * @todo Use 1 controller and initialize with 1.0 or 2.0 class, that'll take care
  * of all differences in each call (init and callback)
@@ -58,7 +61,7 @@ class SessionController extends BaseController
         if (!$this->sessionBag) {
             $name = str_replace("-", "", self::BAG_NAME);
             /** @var Session $session */
-            $session = $this->container->get('session');
+            $session = $this->getSession();
             $bag = new AttributeBag('_' . str_replace("-", "_", self::BAG_NAME));
             $bag->setName($name);
             $session->registerBag($bag);
@@ -113,11 +116,25 @@ class SessionController extends BaseController
     protected function getSymfonySession()
     {
         if (empty($this->symfonySession)) {
-            $this->symfonySession = $this->container->get('session');
+            $this->symfonySession = $this->getSession();
             $this->registerBag($this->symfonySession);
         }
 
         return $this->symfonySession;
+    }
+
+    protected function getSession() {
+        $host = $this->container->getParameter('oauth.providers_db.endpoint');
+        $user = $this->container->getParameter('oauth.providers_db.user');
+        $password = $this->container->getParameter('oauth.providers_db.password');
+        $dbname = $this->container->getParameter('oauth.providers_db.db');
+
+        $dsn = "mysql:host=". $host . ";dbname=" . $dbname;
+        $pdo = new \PDO($dsn, $user, $password);
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $storage = new NativeSessionStorage(array(), new PdoSessionHandler($pdo));
+        $session = new SymfonySession($storage);
+        return $session;
     }
 
     /**
