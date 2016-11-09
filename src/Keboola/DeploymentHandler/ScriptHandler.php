@@ -1,12 +1,11 @@
 <?php
 
-namespace Keboola\OAuthV2Bundle\DeploymentHandler;
+namespace Keboola\DeploymentHandler;
 
 use Composer\Script\Event;
 use Composer\IO\IOInterface;
 use Aws\S3\S3Client;
 
-require 'vendor/autoload.php';
 
 class ScriptHandler
 {

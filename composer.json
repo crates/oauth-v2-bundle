@@ -20,12 +20,14 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "Keboola\\OAuthV2Bundle\\DeploymentHandler\\ScriptHandler::getParameters",
-            "Keboola\\OAuthV2Bundle\\DeploymentHandler\\ScriptHandler::getSharedParameters",            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap"
+            "Keboola\\DeploymentHandler\\ScriptHandler::getParameters",
+            "Keboola\\DeploymentHandler\\ScriptHandler::getSharedParameters",
+            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap"
         ],
         "post-update-cmd": [
-            "Keboola\\OAuthV2Bundle\\DeploymentHandler\\ScriptHandler::getParameters",
-            "Keboola\\OAuthV2Bundle\\DeploymentHandler\\ScriptHandler::getSharedParameters",            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap",
+            "Keboola\\DeploymentHandler\\ScriptHandler::getParameters",
+            "Keboola\\DeploymentHandler\\ScriptHandler::getSharedParameters",
+            "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap",
             "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::clearCache"
         ]
     },
@@ -33,6 +35,9 @@
     "autoload": {
         "psr-0": {
             "Keboola\\OAuthV2Bundle": ""
+        },
+        "psr-4": {
+            "Keboola\\DeploymentHandler\\": "src/Keboola/DeploymentHandler"
         }
     },
     "target-dir": "Keboola\/OAuthV2Bundle",
