@@ -24,10 +24,11 @@ copy-parameters-yml:
 	cp docker-parameters.yml ../vendor/keboola/syrup/app/config/parameters.yml
 	cp parameters_shared.yml ../vendor/keboola/syrup/app/config/
 
-docker-dev: clean-all composer-install setup-dirs copy-parameters-yml
+adjust-logs:
+	chmod +x ./adjust-logs.sh
+	./adjust-logs.sh
+
+docker-dev: clean-all composer-install setup-dirs copy-parameters-yml adjust-logs
 
 build-images:
 	docker-compose build
-adjust-logs:
-	sed -i '' -e '/echo json_encode($$response);/a\
-	var_dump($$logData); die;' $(DEBUGFILE)

@@ -25,13 +25,10 @@ this command does the following:
 - runs composer install (requires interaction during installation to type `s` - skip copying parameters.yml )
 - set 777 permissions on vendor dir
 - copies both parameters files
+- adjust logs
 
-### 4. Adjust logs
-Run the foolowing command from `docker` dir to adjust logs to dump the exceptions log directly to the screen.
-```bash
-sed -i '' -e '/echo json_encode($response);/a\
-var_dump($logData); die;' "../vendor/keboola/syrup/src/Keboola/Syrup/Debug/ExceptionHandler.php"
-```
+### 4. Logging
+Script `./adjust-logs.sh` or `make adjust-logs` command in `docker` dir to adjusts logs to dump the exceptions log directly to the screen. See the `adjust-logs.sh` script for more details. This script is called automatically on `make docker-dev` command;
 
 ### 5. Running app
 run all services
