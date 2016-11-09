@@ -207,7 +207,8 @@ class ManageController extends BaseController
             throw new UserException("Manage API Token not set.");
         }
         $client = new Client([
-            "token" => $request->headers->get("X-KBC-ManageApiToken")
+            "token" => $request->headers->get("X-KBC-ManageApiToken"),
+            "url" => $this->container->getParameter('storage_api.url')
         ]);
 
         try {

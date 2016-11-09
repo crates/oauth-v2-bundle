@@ -6,6 +6,7 @@ use Composer\Script\Event;
 use Composer\IO\IOInterface;
 use Aws\S3\S3Client;
 
+require_once 'vendor/autoload.php';
 
 class ScriptHandler
 {
@@ -142,6 +143,8 @@ s - skip <info>(keep current file)</info>
         if (getenv('AWS_REGION')) {
             $awsRegion = getenv('AWS_REGION');
         }
+
+
 
         $client = new S3Client(array(
             'version' => '2006-03-01',
