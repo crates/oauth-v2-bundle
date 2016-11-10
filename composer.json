@@ -20,13 +20,13 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "Keboola\\DeploymentHandler\\ScriptHandler::getParameters",
-            "Keboola\\DeploymentHandler\\ScriptHandler::getSharedParameters",
+            "Keboola\\Syrup\\DeploymentHandler\\ScriptHandler::getParameters",
+            "Keboola\\Syrup\\DeploymentHandler\\ScriptHandler::getSharedParameters",
             "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap"
         ],
         "post-update-cmd": [
-            "Keboola\\DeploymentHandler\\ScriptHandler::getParameters",
-            "Keboola\\DeploymentHandler\\ScriptHandler::getSharedParameters",
+            "Keboola\\Syrup\\DeploymentHandler\\ScriptHandler::getParameters",
+            "Keboola\\Syrup\\DeploymentHandler\\ScriptHandler::getSharedParameters",
             "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::buildBootstrap",
             "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::clearCache"
         ]
