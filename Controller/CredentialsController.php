@@ -8,7 +8,7 @@ use Keboola\Syrup\Controller\ApiController,
 use Symfony\Component\HttpFoundation\Response,
     Symfony\Component\HttpFoundation\JsonResponse,
     Symfony\Component\HttpFoundation\Request;
-use Keboola\Utils\Utils;
+use function Keboola\Utils\jsonDecode;
 
 class CredentialsController extends ApiController
 {
@@ -44,7 +44,7 @@ class CredentialsController extends ApiController
             [
                 'id' => $id,
                 'authorizedFor' => $creds['authorized_for'],
-                'creator' => Utils::json_decode($creds['creator']),
+                'creator' => jsonDecode($creds['creator']),
                 'created' => $creds['created'],
                 '#data' => $creds['data'],
                 'oauthVersion' => $consumer['oauth_version'],
@@ -111,7 +111,7 @@ class CredentialsController extends ApiController
         );
 
         foreach($result as &$record) {
-            $record['creator'] = Utils::json_decode($record['creator']);
+            $record['creator'] = jsonDecode($record['creator']);
         }
 
         return new JsonResponse($result, 200, [
@@ -124,7 +124,7 @@ class CredentialsController extends ApiController
     public function addAction($componentId, Request $request)
     {
         $token = $this->storageApi->verifyToken();
-        $credentials = $this->validateCredentials(Utils::json_decode($request->getContent()));
+        $credentials = $this->validateCredentials(jsonDecode($request->getContent()));
         $conn = $this->getConnection();
 
         $consumer = $conn->fetchAssoc(
@@ -142,7 +142,8 @@ class CredentialsController extends ApiController
         ];
 
         $data = json_encode($credentials->data);
-        $dataEncrypted = ByAppEncryption::encrypt($data, $componentId, $token['token'], true);
+        $sapiUrl = $this->container->getParameter('storage_api.url');
+        $dataEncrypted = ByAppEncryption::encrypt($data, $componentId, $token['token'], true, $sapiUrl);
         $created = date("Y-m-d H:i:s");
 
         try {

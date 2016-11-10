@@ -15,7 +15,7 @@ use Keboola\OAuth\OAuth10,
     Keboola\OAuth\AbstractOAuth;
 use Keboola\OAuthV2Bundle\Storage\Session,
     Keboola\OAuthV2Bundle\Encryption\ByAppEncryption;
-use Keboola\Utils\Utils;
+use function Keboola\Utils\jsonDecode;
 use Keboola\OAuthV2Bundle\Facebook\OAuthFacebook;
 
 /**
@@ -118,14 +118,14 @@ class OAuthController extends SessionController
         ];
 
         $data = json_encode($result);
-
+        $sapiUrl = $this->container->getParameter('storage_api.url');
         try {
             $this->connection->insert('credentials', [
                 'id' => $session->get('id'),
                 'component_id' => $componentId,
                 'project_id' => $tokenDetail['owner']['id'],
                 'creator' => json_encode($creator),
-                'data' => ByAppEncryption::encrypt($data, $componentId, $token, true),
+                'data' => ByAppEncryption::encrypt($data, $componentId, $token, true, $sapiUrl),
                 'authorized_for' => $authorizedFor,
                 'created' => date("Y-m-d H:i:s")
             ]);
@@ -179,7 +179,7 @@ class OAuthController extends SessionController
     {
         $userDataJson = $session->get('userData');
 
-        $userData = empty($userDataJson) ? [] : Utils::json_decode($userDataJson, true);
+        $userData = empty($userDataJson) ? [] : jsonDecode($userDataJson, true);
 
         array_walk($api, function(&$url, $apiKey) use($userData) {
             if (substr($apiKey, -4) != '_url') {
