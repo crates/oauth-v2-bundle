@@ -10,14 +10,41 @@ use Keboola\StorageApi\Client as StorageApi;
 class ByAppEncryption
 {
     /**
-     * @param string $secret String to encrypt
-     * @param string $componentId
-     * @param string $token SAPI token
-     * @param $sapiUrl
-     * @return string Encrypted $secret by application $componentId
+     * @var Client
+     */
+    protected $syrupClient;
+
+    /**
+     * ByAppEncryption constructor.
+     *
+     * @param Client $syrupClient
+     */
+    public function __construct(Client $syrupClient)
+    {
+        $this->syrupClient = $syrupClient;
+    }
+
+    /**
+     * @param $secret
+     * @param $componentId
+     * @param bool $toConfig
+     * @return string
      * @throws UserException
      */
-    public static function encrypt($secret, $componentId, $token = null, $toConfig = false, $sapiUrl)
+    public function encrypt($secret, $componentId, $toConfig = false) {
+        try {
+            return $this->syrupClient->encryptString($componentId, $secret, $toConfig ? ["path" => "configs"] : []);
+        } catch(ClientException $e) {
+            throw new UserException("Component based encryption of the app secret failed: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * @param $token
+     * @param $sapiUrl
+     * @return ByAppEncryption
+     */
+    public static function factory($token, $sapiUrl)
     {
         if(empty($sapiUrl)) {
             throw new ApplicationException("StorageApi url is empty and must be set");
@@ -27,13 +54,11 @@ class ByAppEncryption
             "userAgent" => 'oauth-v2',
             "url" => $sapiUrl
         ]);
-        $components = $storageApiClient->indexAction()["components"];
+        $services = $storageApiClient->indexAction()["services"];
         $syrupApiUrl = null;
-        foreach ($components as $component) {
-            if ($component["id"] == 'queue') {
-                // strip the component uri to syrup api uri
-                // eg https://syrup.keboola.com/docker/docker-demo => https://syrup.keboola.com
-                $syrupApiUrl = substr($component["uri"], 0, strpos($component["uri"], "/", 8));
+        foreach ($services as $service) {
+            if ($service["id"] == 'syrup') {
+                $syrupApiUrl = $service["url"];
                 break;
             }
         }
@@ -43,18 +68,13 @@ class ByAppEncryption
 
         $config = [
             'super' => 'docker',
-            "url" => $syrupApiUrl
+            'url' => $syrupApiUrl
         ];
         if (!is_null($token)) {
             $config['token'] = $token;
         }
 
         $client = Client::factory($config);
-
-        try {
-            return $client->encryptString($componentId, $secret, $toConfig ? ["path" => "configs"] : []);
-        } catch(ClientException $e) {
-            throw new UserException("Component based encryption of the app secret failed: " . $e->getMessage());
-        }
+        return new self($client);
     }
 }
