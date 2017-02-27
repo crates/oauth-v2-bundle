@@ -8,9 +8,9 @@ up:
 down:
 	docker-compose down
 clean-vendor:
-	sudo rm ../vendor -rf
+	sudo rm -rf ../vendor
 clean-logs:
-	sudo rm ../s3logs -rf
+	sudo rm -rf ../s3logs
 
 clean-all: clean-vendor clean-logs
 
@@ -33,4 +33,4 @@ docker-dev: clean-all composer-install setup-dirs copy-parameters-yml adjust-log
 build-images:
 	docker-compose build
 reset-db:
-	sudo rm ./.mysql-datadir/ -rf
+	sudo rm -rf ./.mysql-datadir/

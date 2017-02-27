@@ -1,6 +1,10 @@
 FORMAT: 1A
 HOST: http://syrup.keboola.com/oauth-v2
 
+## Local development
+
+See [/docker/README.md](/docker/README.md).
+
 ## TLDR; samples
 Api is registered by calling api call: `POST` https://syrup.keboola.com/oauth-v2/manage . You can test registered api and get sample token data by visiting url https://syrup.keboola.com/oauth-v2/authorize/<COMPONENT_ID> e.g. https://syrup.keboola.com/oauth-v2/authorize/keboola.ex-twitter
 
