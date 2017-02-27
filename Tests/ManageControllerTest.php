@@ -67,5 +67,32 @@ class ManageControllerTest extends WebTestCase
         $this->assertArrayHasKey('app_secret_docker', $dbRecord);
     }
 
+    public function testListAPIs() {
+        $this->connection->query('
+            INSERT INTO `consumers` VALUES (
+                \'ex-generic-v2\',
+                \'https://oauth.example.com\',
+                \'https://oauth.example.com/token\',
+                \'\',
+                \'123456\',
+                \'\',
+                \'\',
+                \'Testing keboola.oauth-v2\',
+                \'2.0\'
+            )
+        ');
+        $client = static::createClient();
+        $server = [
+            'HTTP_X-KBC-ManageApiToken' => MANAGE_API_TOKEN
+        ];
+
+        $client->request('GET', '/oauth-v2/manage', [], [], $server);
+        $response = json_decode($client->getResponse()->getContent(), true);
+        $this->assertCount(1, $response);
+        $this->assertEquals('ex-generic-v2', $response[0]['component_id']);
+        $this->assertEquals('123456', $response[0]['app_key']);
+        $this->assertEquals('Testing keboola.oauth-v2', $response[0]['friendly_name']);
+        $this->assertEquals('2.0', $response[0]['oauth_version']);
+    }
 
 }
