@@ -7,6 +7,16 @@ use Keboola\Temp\Temp;
 
 class ManageControllerTest extends WebTestCase
 {
+    public function setUp() {
+        self::bootKernel([
+            'debug' => true
+        ]);
+        $connection = static::$kernel->getContainer()->get('doctrine')->getConnection('oauth_providers');
+        $connection->exec(
+            "TRUNCATE `consumers`"
+        );
+    }
+
     public function testListEmptyAPIsList() {
 
         $client = static::createClient();
