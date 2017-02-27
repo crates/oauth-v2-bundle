@@ -25,6 +25,10 @@ defined('STORAGE_API_TOKEN')
 defined('STORAGE_API_MAINTENANCE_URL')
     || define('STORAGE_API_MAINTENANCE_URL', getenv('STORAGE_API_MAINTENANCE_URL') ? getenv('STORAGE_API_MAINTENANCE_URL') : 'https://maintenance-testing.keboola.com/');
 
+defined('MANAGE_API_TOKEN')
+    || define('MANAGE_API_TOKEN', getenv('MANAGE_API_TOKEN') ? getenv('MANAGE_API_TOKEN') : 'your_token');
+
+
 
 require_once ROOT_PATH . '/vendor/autoload.php';
 require_once 'Tests/OAuthTestCase.php';

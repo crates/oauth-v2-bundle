@@ -52,6 +52,18 @@ or from `docker` dir
 make bash
 ```
 
+### 6. Running tests
+
+```bash
+make test
+```
+
+or 
+
+```bash
+docker-compose run --rm apache ./vendor/bin/phpunit
+```
+
 ## Database
 Database is setup and initialized with structure defined in `./Resources/sql` and running on port *8701*.
 

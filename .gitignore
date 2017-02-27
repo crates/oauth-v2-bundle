@@ -11,3 +11,4 @@ composer.phar
 s3logs
 docker/.mysql-datadir
 docker/parameters_shared.yml
+.env
