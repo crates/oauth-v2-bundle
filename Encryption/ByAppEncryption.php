@@ -1,6 +1,7 @@
 <?php
 namespace Keboola\OAuthV2Bundle\Encryption;
 
+use Keboola\OAuth\Exception\UserException;
 use Keboola\Syrup\Client,
     Keboola\Syrup\ClientException;
 use Keboola\Syrup\Exception\ApplicationException;
@@ -12,7 +13,9 @@ class ByAppEncryption
      * @param string $secret String to encrypt
      * @param string $componentId
      * @param string $token SAPI token
+     * @param $sapiUrl
      * @return string Encrypted $secret by application $componentId
+     * @throws UserException
      */
     public static function encrypt($secret, $componentId, $token = null, $toConfig = false, $sapiUrl)
     {
