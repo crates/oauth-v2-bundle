@@ -4,7 +4,7 @@ DEBUGFILE = "../vendor/keboola/syrup/src/Keboola/Syrup/Debug/ExceptionHandler.ph
 bash:
 	docker-compose run --rm apache /bin/bash
 up:
-	docker-compose up
+	docker-compose up apache
 down:
 	docker-compose down
 test:

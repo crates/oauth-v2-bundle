@@ -33,7 +33,7 @@ Script `./adjust-logs.sh` or `make adjust-logs` command in `docker` dir to adjus
 ### 5. Running app
 run all services
 ```bash
-docker-compose up
+docker-compose up apache
 ```
 or from `docker` dir
 ```bash
