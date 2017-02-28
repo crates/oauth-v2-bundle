@@ -143,7 +143,8 @@ class CredentialsController extends ApiController
 
         $data = json_encode($credentials->data);
         $sapiUrl = $this->container->getParameter('storage_api.url');
-        $dataEncrypted = ByAppEncryption::encrypt($data, $componentId, $token['token'], true, $sapiUrl);
+        $encryptor = ByAppEncryption::factory($token['token'], $sapiUrl);
+        $dataEncrypted = $encryptor->encrypt($data, $componentId, true);
         $created = date("Y-m-d H:i:s");
 
         try {

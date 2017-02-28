@@ -70,7 +70,8 @@ class ManageController extends BaseController
 
         $api = $this->validateApiConfig(\Keboola\Utils\jsonDecode($request->getContent()));
         $sapiUrl = $this->container->getParameter('storage_api.url');
-        $api->app_secret_docker = ByAppEncryption::encrypt($api->app_secret, $api->component_id, $sapiToken['token'], false, $sapiUrl);
+        $encryptor = ByAppEncryption::factory($sapiToken['token'], $sapiUrl);
+        $api->app_secret_docker = $encryptor->encrypt($api->app_secret, $api->component_id, false);
         $api->app_secret = $this->encryptBySelf($api->app_secret);
 
         try {
