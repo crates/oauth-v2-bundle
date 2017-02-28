@@ -13,17 +13,21 @@ class ManageControllerTest extends WebTestCase
      */
     protected $connection;
 
-    public function setUp() {
-        self::bootKernel([
-            'debug' => true
-        ]);
+    public function setUp()
+    {
+        self::bootKernel(
+            [
+                'debug' => true
+            ]
+        );
         $this->connection = static::$kernel->getContainer()->get('doctrine')->getConnection('oauth_providers');
         $this->connection->exec(
             "TRUNCATE `consumers`"
         );
     }
 
-    public function testListEmptyAPIsList() {
+    public function testListEmptyAPIsList()
+    {
 
         $client = static::createClient();
         $server = [
@@ -35,7 +39,8 @@ class ManageControllerTest extends WebTestCase
         $this->assertEquals([], $response);
     }
 
-    public function testAddAPI() {
+    public function testAddAPI()
+    {
         $client = static::createClient();
         $server = [
             'HTTP_X-KBC-ManageApiToken' => MANAGE_API_TOKEN,
@@ -67,8 +72,10 @@ class ManageControllerTest extends WebTestCase
         $this->assertArrayHasKey('app_secret_docker', $dbRecord);
     }
 
-    public function testListAPIs() {
-        $this->connection->query('
+    public function testListAPIs()
+    {
+        $this->connection->query(
+            '
             INSERT INTO `consumers` VALUES (
                 \'ex-generic-v2\',
                 \'https://oauth.example.com\',
@@ -80,7 +87,8 @@ class ManageControllerTest extends WebTestCase
                 \'Testing keboola.oauth-v2\',
                 \'2.0\'
             )
-        ');
+        '
+        );
         $client = static::createClient();
         $server = [
             'HTTP_X-KBC-ManageApiToken' => MANAGE_API_TOKEN
@@ -94,5 +102,36 @@ class ManageControllerTest extends WebTestCase
         $this->assertEquals('Testing keboola.oauth-v2', $response[0]['friendly_name']);
         $this->assertEquals('2.0', $response[0]['oauth_version']);
     }
+
+    public function testGetAPI()
+    {
+        $this->connection->query(
+            '
+            INSERT INTO `consumers` VALUES (
+                \'ex-generic-v2\',
+                \'https://oauth.example.com\',
+                \'https://oauth.example.com/token\',
+                \'\',
+                \'123456\',
+                \'\',
+                \'\',
+                \'Testing keboola.oauth-v2\',
+                \'2.0\'
+            )
+        '
+        );
+        $client = static::createClient();
+        $server = [
+            'HTTP_X-KBC-ManageApiToken' => MANAGE_API_TOKEN
+        ];
+
+        $client->request('GET', '/oauth-v2/manage/ex-generic-v2', [], [], $server);
+        $response = json_decode($client->getResponse()->getContent(), true);
+        $this->assertEquals('ex-generic-v2', $response['component_id']);
+        $this->assertEquals('123456', $response['app_key']);
+        $this->assertEquals('Testing keboola.oauth-v2', $response['friendly_name']);
+        $this->assertEquals('2.0', $response['oauth_version']);
+    }
+
 
 }
