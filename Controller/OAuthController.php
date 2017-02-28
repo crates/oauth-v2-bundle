@@ -120,7 +120,7 @@ class OAuthController extends SessionController
         $data = json_encode($result);
         $sapiUrl = $this->container->getParameter('storage_api.url');
         try {
-            $encryptor = ByAppEncryption::factory($token['token'], $sapiUrl);
+            $encryptor = ByAppEncryption::factory($token, $sapiUrl);
             $this->connection->insert('credentials', [
                 'id' => $session->get('id'),
                 'component_id' => $componentId,
