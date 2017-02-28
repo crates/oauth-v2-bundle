@@ -140,12 +140,11 @@ class ManageController extends BaseController
 
         if ($updateAppSecret) {
             $sapiUrl = $this->container->getParameter('storage_api.url');
-            $detail->app_secret_docker = ByAppEncryption::encrypt(
+            $encryptor = ByAppEncryption::factory($sapiToken['token'], $sapiUrl);
+            $detail->app_secret_docker = $encryptor->encrypt(
                 $detail->app_secret,
                 $componentId,
-                $sapiToken['token'],
-                false,
-                $sapiUrl
+                false
             );
             $detail->app_secret = $this->encryptBySelf($detail->app_secret);
 
