@@ -43,6 +43,11 @@ keboola_o_auth_delete_api:
     defaults: { _controller: KeboolaOAuthV2Bundle:Manage:delete }
     methods: [DELETE]
 
+keboola_o_auth_update_api:
+    path: /manage/{componentId}
+    defaults: { _controller: KeboolaOAuthV2Bundle:Manage:update }
+    methods: [PATCH]
+
 keboola_o_auth_api_auth:
     path: /authorize/{componentId}
     defaults: { _controller: KeboolaOAuthV2Bundle:OAuth:init }

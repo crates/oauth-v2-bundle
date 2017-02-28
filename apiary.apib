@@ -399,7 +399,7 @@ To add `facebook` api component, set `oauth_version` parameter to `facebook` and
             "component_id": "wr-dropbox"
         }
 
-## Delete/Get API detail [/manage/{componentId}]
+## Delete/Get/Update API detail [/manage/{componentId}]
 
 ### Get API detail [GET]
 
@@ -423,6 +423,42 @@ To add `facebook` api component, set `oauth_version` parameter to `facebook` and
             "app_secret_docker": "KBC::ComponentEncrypted==/fiewoqhfhoighuqg64gr426wg4864rc26g4re6g/TQPwltR8mp+FEWFwg6gr6e4gc688g6w42==",
             "oauth_version": "2.0"
         }
+
+### Update component [PATCH]
+
+This API call supports the same parameters as **Add new component** except for `component_id`, which cannote be changed.
+
++ Request (application/json)
+
+
+    + Headers
+
+            Accept: application/json
+            X-StorageApi-Token: Your-Sapi-Token
+            X-KBC-ManageApiToken: Manage-token
+
+    + Body
+
+                {
+                    "friendly_name": "Dropbox Writer",
+                    "app_key": "yourAppKey",
+                    "app_secret": "yourAppSecret",
+                    "auth_url": "https://www.dropbox.com/1/oauth2/authorize?response_type=code&client_id=%%client_id%%&redirect_uri=%%redirect_uri%%",
+                    "token_url": "https://api.dropbox.com/1/oauth2/token",
+                    "oauth_version": "2.0"
+                }
+
+
++ Response 200 (application/json)
+
+        {
+            "component_id": "wr-dropbox",
+            "friendly_name": "Dropbox Writer",
+            "app_key": "yourAppKey",
+            "app_secret_docker": "KBC::ComponentEncrypted==/fiewoqhfhoighuqg64gr426wg4864rc26g4re6g/TQPwltR8mp+FEWFwg6gr6e4gc688g6w42==",
+            "oauth_version": "2.0"
+        }
+
 
 ### Delete component [DELETE]
 

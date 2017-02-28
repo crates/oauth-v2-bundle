@@ -41,7 +41,6 @@ class ManageController extends BaseController
     public function getAction($componentId)
     {
         $conn = $this->getConnection();
-
         $detail = $this->getConnection()->fetchAssoc("SELECT `component_id`, `friendly_name`, `app_key`, `app_secret_docker`, `oauth_version` FROM `consumers` WHERE `component_id` = :componentId", ['componentId' => $componentId]);
 
         // TODO exception?
@@ -112,6 +111,61 @@ class ManageController extends BaseController
         throw new UserException("Unknown error deleting consumer '{$componentId}'.");
     }
 
+    /**
+     * Update API to `consumers` and encrypt the secret if present
+     */
+    public function updateAction($componentId, Request $request)
+    {
+        $sapiToken = $this->container->get('syrup.storage_api')->getClient()->verifyToken();
+
+        $updateData = \Keboola\Utils\jsonDecode($request->getContent(), true);
+        if (isset($updateData["component_id"])) {
+            throw new UserException("Cannot update component_id.");
+        }
+
+        // encrypt, if app_secret is present
+        $updateAppSecret = false;
+        if (isset($updateData['app_secret'])) {
+            $updateAppSecret = true;
+        }
+
+        $conn = $this->getConnection();
+        $query = "SELECT * FROM `consumers` WHERE `component_id` = :componentId";
+        $detail = $this->getConnection()->fetchAssoc($query, ['componentId' => $componentId]);
+
+        foreach($updateData as $key => $val) {
+            $detail[$key] = $val;
+        }
+        $detail = $this->validateApiConfig((object) $detail);
+
+        if ($updateAppSecret) {
+            $sapiUrl = $this->container->getParameter('storage_api.url');
+            $detail->app_secret_docker = ByAppEncryption::encrypt(
+                $detail->app_secret,
+                $componentId,
+                $sapiToken['token'],
+                false,
+                $sapiUrl
+            );
+            $detail->app_secret = $this->encryptBySelf($detail->app_secret);
+
+        }
+
+        try {
+            $conn->update('consumers', (array) $detail, ['component_id' => $componentId]);
+        } catch(\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
+            throw new UserException("Consumer '$componentId' cannot be updated: " . $e->getMessage());
+        }
+
+        $detail = $this->getConnection()->fetchAssoc(
+            "SELECT `component_id`, `friendly_name`, `app_key`, `app_secret_docker`, `oauth_version` FROM `consumers` WHERE `component_id` = :componentId",
+            ['componentId' => $componentId]
+        );
+
+        return new JsonResponse($detail, 200, $this->defaultResponseHeaders);
+    }
+
+
     public function preExecute(Request $request)
     {
         if (!$this->checkScope('oauth:manage', $request)) {
@@ -129,8 +183,8 @@ class ManageController extends BaseController
     }
 
     /**
-     * @param object $api
-     * @return object
+     * @param \stdClass $api
+     * @return \stdClass
      */
     protected function validateApiConfig(\stdClass $api)
     {
