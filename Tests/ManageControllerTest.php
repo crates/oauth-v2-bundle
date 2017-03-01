@@ -41,6 +41,7 @@ class ManageControllerTest extends WebTestCase
 
     public function testAddAPI()
     {
+
         $client = static::createClient();
         $server = [
             'HTTP_X-KBC-ManageApiToken' => MANAGE_API_TOKEN,
@@ -182,8 +183,5 @@ class ManageControllerTest extends WebTestCase
         $this->assertEquals('123456 XXX', $response['app_key']);
         $this->assertEquals('Testing keboola.oauth-v2 XXX', $response['friendly_name']);
         $this->assertEquals('2.0', $response['oauth_version']);
-
-
     }
-
 }
