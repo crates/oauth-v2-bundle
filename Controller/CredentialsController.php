@@ -123,7 +123,6 @@ class CredentialsController extends ApiController
 
     public function addAction($componentId, Request $request)
     {
-        $token = $this->storageApi->verifyToken();
         $credentials = $this->validateCredentials(jsonDecode($request->getContent()));
         $conn = $this->getConnection();
 
@@ -136,14 +135,14 @@ class CredentialsController extends ApiController
             throw new UserException("Component '{$componentId}' not found!");
         }
 
+        $token = $this->storageApi->verifyToken();
         $creator = [
             'id' => $token['id'],
             'description' => $token['description']
         ];
 
         $data = json_encode($credentials->data);
-        $sapiUrl = $this->container->getParameter('storage_api.url');
-        $encryptor = ByAppEncryption::factory($token['token'], $sapiUrl);
+        $encryptor = $this->container->get('oauth.docker_encryptor')->getEncryptor();
         $dataEncrypted = $encryptor->encrypt($data, $componentId, true);
         $created = date("Y-m-d H:i:s");
 

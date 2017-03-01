@@ -2,6 +2,8 @@
 
 namespace Keboola\OAuthV2Bundle\Controller;
 
+use Keboola\StorageApi\Client;
+use Keboola\StorageApi\ClientException;
 use Keboola\Syrup\Exception\SyrupComponentException,
     Keboola\Syrup\Exception\UserException,
     Keboola\Syrup\Encryption\BaseWrapper;
@@ -118,9 +120,12 @@ class OAuthController extends SessionController
         ];
 
         $data = json_encode($result);
-        $sapiUrl = $this->container->getParameter('storage_api.url');
         try {
-            $encryptor = ByAppEncryption::factory($token, $sapiUrl);
+            $client = new Client([
+                "token" => $token,
+                "url" => $this->container->getParameter('storage_api.url')
+            ]);
+            $encryptor = ByAppEncryption::factory($client);
             $this->connection->insert('credentials', [
                 'id' => $session->get('id'),
                 'component_id' => $componentId,
@@ -255,7 +260,7 @@ class OAuthController extends SessionController
 
         try {
             $tokenInfo = $sapi->verifyToken();
-        } catch(Keboola\StorageApi\ClientException $e) {
+        } catch(ClientException $e) {
             throw new UserException($e->getMessage());
         }
 

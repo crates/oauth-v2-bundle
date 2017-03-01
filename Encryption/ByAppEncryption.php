@@ -40,20 +40,11 @@ class ByAppEncryption
     }
 
     /**
-     * @param $token
-     * @param $sapiUrl
+     * @param StorageApi $storageApiClient
      * @return ByAppEncryption
      */
-    public static function factory($token, $sapiUrl)
+    public static function factory(\Keboola\StorageApi\Client $storageApiClient)
     {
-        if(empty($sapiUrl)) {
-            throw new ApplicationException("StorageApi url is empty and must be set");
-        }
-        $storageApiClient = new StorageApi([
-            "token" => $token,
-            "userAgent" => 'oauth-v2',
-            "url" => $sapiUrl
-        ]);
         $services = $storageApiClient->indexAction()["services"];
         $syrupApiUrl = null;
         foreach ($services as $service) {
@@ -63,16 +54,14 @@ class ByAppEncryption
             }
         }
         if(empty($syrupApiUrl)) {
-            throw new ApplicationException("SyrupApi url is empty");
+            throw new ApplicationException("SyrupApi URL is empty");
         }
 
         $config = [
             'super' => 'docker',
             'url' => $syrupApiUrl
         ];
-        if (!is_null($token)) {
-            $config['token'] = $token;
-        }
+        $config['token'] = $storageApiClient->getTokenString();;
 
         $client = Client::factory($config);
         return new self($client);

@@ -1,19 +1,5 @@
 services:
-#    keboola_o_auth.example:
-#        class: Keboola\OAuthBundle\Example
-#        arguments: [@service_id, "plain_value", %parameter%]
+    oauth.docker_encryptor:
+        class: Keboola\OAuthV2Bundle\Service\DockerEncryptor
+        arguments: ["@syrup.storage_api"]
 
-# to config.yml?
-#parameters:
-#doctrine:
-    #dbal:
-        #connections:
-            #oauth_providers:
-                #host:     %oauth.providers_db.endpoint%
-                ##port:     %database_port%
-                #dbname:   %oauth.providers_db.db%
-                #user:     %oauth.providers_db.user%
-                #password: %oauth.providers_db.password%
-                #charset:  UTF8
-                ##logging: false
-                ##profiling: false

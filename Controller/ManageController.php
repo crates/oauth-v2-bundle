@@ -10,7 +10,6 @@ use Symfony\Component\HttpFoundation\Response,
     Symfony\Component\HttpFoundation\Request;
 use Keboola\ManageApi\Client,
     Keboola\ManageApi\ClientException;
-use Keboola\OAuthV2Bundle\Encryption\ByAppEncryption;
 
 class ManageController extends BaseController
 {
@@ -63,17 +62,15 @@ class ManageController extends BaseController
      */
     public function addAction(Request $request)
     {
-        $sapiToken = $this->container->get('syrup.storage_api')->getClient()->verifyToken();
-
-        $conn = $this->getConnection();
 
         $api = $this->validateApiConfig(\Keboola\Utils\jsonDecode($request->getContent()));
-        $sapiUrl = $this->container->getParameter('storage_api.url');
-        $encryptor = ByAppEncryption::factory($sapiToken['token'], $sapiUrl);
+
+        $encryptor = $this->container->get('oauth.docker_encryptor')->getEncryptor();
         $api->app_secret_docker = $encryptor->encrypt($api->app_secret, $api->component_id, false);
         $api->app_secret = $this->encryptBySelf($api->app_secret);
 
         try {
+            $conn = $this->getConnection();
             $conn->insert('consumers', (array) $api);
         } catch(\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
             throw new UserException("Consumer '{$api->component_id}' already exists!");
@@ -116,8 +113,6 @@ class ManageController extends BaseController
      */
     public function updateAction($componentId, Request $request)
     {
-        $sapiToken = $this->container->get('syrup.storage_api')->getClient()->verifyToken();
-
         $updateData = \Keboola\Utils\jsonDecode($request->getContent(), true);
         if (isset($updateData["component_id"])) {
             throw new UserException("Cannot update component_id.");
@@ -139,8 +134,7 @@ class ManageController extends BaseController
         $detail = $this->validateApiConfig((object) $detail);
 
         if ($updateAppSecret) {
-            $sapiUrl = $this->container->getParameter('storage_api.url');
-            $encryptor = ByAppEncryption::factory($sapiToken['token'], $sapiUrl);
+            $encryptor = $this->container->get('oauth.docker_encryptor')->getEncryptor();
             $detail->app_secret_docker = $encryptor->encrypt(
                 $detail->app_secret,
                 $componentId,
