@@ -3,6 +3,10 @@
 namespace Keboola\OAuthV2Bundle\Tests;
 
 use Doctrine\DBAL\Driver\Connection;
+use Keboola\OAuthV2Bundle\Encryption\ByAppEncryption;
+use Keboola\OAuthV2Bundle\Service\DockerEncryptor;
+use Keboola\StorageApi\Client;
+use Keboola\Syrup\Service\StorageApi\StorageApiService;
 use Keboola\Syrup\Test\WebTestCase;
 use Keboola\Temp\Temp;
 
@@ -49,7 +53,7 @@ class ManageControllerTest extends WebTestCase
             'CONTENT_TYPE' => 'application/json'
         ];
         $body = '{
-              "component_id": "ex-generic-v2",
+              "component_id": "my-component",
               "friendly_name": "Testing keboola.oauth-v2",
               "app_key": "123456",
               "app_secret": "654321",
@@ -58,19 +62,31 @@ class ManageControllerTest extends WebTestCase
               "oauth_version": "2.0"
             }';
 
+        /** @var DockerEncryptor $encryptorService */
+        $encryptorService = $client->getContainer()->get('oauth.docker_encryptor');
+        $encryptorStub = $this->getMockBuilder(ByAppEncryption::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $encryptorStub->expects($this->atLeastOnce())
+            ->method("encrypt")
+            ->with("654321", "my-component", false)
+            ->will($this->returnValue('KBC::ComponentEncrypted=='));
+        $encryptorService->setEncryptor($encryptorStub);
+
         $client->request('POST', '/oauth-v2/manage', [], [], $server, $body);
         $response = json_decode($client->getResponse()->getContent(), true);
         $this->assertEquals('created', $response['status']);
 
         $dbRecord = $this->connection->fetchAll('SELECT * FROM `consumers`')[0];
-        $this->assertEquals('ex-generic-v2', $dbRecord['component_id']);
+        $this->assertEquals('my-component', $dbRecord['component_id']);
         $this->assertEquals('https://oauth.example.com', $dbRecord['auth_url']);
         $this->assertEquals('https://oauth.example.com/token', $dbRecord['token_url']);
         $this->assertEquals('Testing keboola.oauth-v2', $dbRecord['friendly_name']);
         $this->assertEquals('', $dbRecord['request_token_url']);
         $this->assertEquals('2.0', $dbRecord['oauth_version']);
+        $this->assertEquals('KBC::ComponentEncrypted==', $dbRecord['app_secret_docker']);
         $this->assertArrayHasKey('app_secret', $dbRecord);
-        $this->assertArrayHasKey('app_secret_docker', $dbRecord);
+        $this->assertNotEmpty($dbRecord['app_secret']);
     }
 
     public function testListAPIs()
@@ -78,7 +94,7 @@ class ManageControllerTest extends WebTestCase
         $this->connection->query(
             '
             INSERT INTO `consumers` VALUES (
-                \'ex-generic-v2\',
+                \'my-component\',
                 \'https://oauth.example.com\',
                 \'https://oauth.example.com/token\',
                 \'\',
@@ -98,7 +114,7 @@ class ManageControllerTest extends WebTestCase
         $client->request('GET', '/oauth-v2/manage', [], [], $server);
         $response = json_decode($client->getResponse()->getContent(), true);
         $this->assertCount(1, $response);
-        $this->assertEquals('ex-generic-v2', $response[0]['component_id']);
+        $this->assertEquals('my-component', $response[0]['component_id']);
         $this->assertEquals('123456', $response[0]['app_key']);
         $this->assertEquals('Testing keboola.oauth-v2', $response[0]['friendly_name']);
         $this->assertEquals('2.0', $response[0]['oauth_version']);
@@ -109,7 +125,7 @@ class ManageControllerTest extends WebTestCase
         $this->connection->query(
             '
             INSERT INTO `consumers` VALUES (
-                \'ex-generic-v2\',
+                \'my-component\',
                 \'https://oauth.example.com\',
                 \'https://oauth.example.com/token\',
                 \'\',
@@ -125,9 +141,9 @@ class ManageControllerTest extends WebTestCase
         $server = [
             'HTTP_X-KBC-ManageApiToken' => MANAGE_API_TOKEN
         ];
-        $client->request('GET', '/oauth-v2/manage/ex-generic-v2', [], [], $server);
+        $client->request('GET', '/oauth-v2/manage/my-component', [], [], $server);
         $response = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals('ex-generic-v2', $response['component_id']);
+        $this->assertEquals('my-component', $response['component_id']);
         $this->assertEquals('123456', $response['app_key']);
         $this->assertEquals('Testing keboola.oauth-v2', $response['friendly_name']);
         $this->assertEquals('2.0', $response['oauth_version']);
@@ -138,7 +154,7 @@ class ManageControllerTest extends WebTestCase
         $this->connection->query(
             '
             INSERT INTO `consumers` VALUES (
-                \'ex-generic-v2\',
+                \'my-component\',
                 \'https://oauth.example.com\',
                 \'https://oauth.example.com/token\',
                 \'\',
@@ -150,7 +166,20 @@ class ManageControllerTest extends WebTestCase
             )
         '
         );
+
         $client = static::createClient();
+
+        /** @var DockerEncryptor $encryptorService */
+        $encryptorService = $client->getContainer()->get('oauth.docker_encryptor');
+        $encryptorStub = $this->getMockBuilder(ByAppEncryption::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $encryptorStub->expects($this->atLeastOnce())
+            ->method("encrypt")
+            ->with("654321 XXX", "my-component", false)
+            ->will($this->returnValue('KBC::ComponentEncrypted=='));
+        $encryptorService->setEncryptor($encryptorStub);
+
         $server = [
             'HTTP_X-KBC-ManageApiToken' => MANAGE_API_TOKEN,
             'HTTP_X-StorageApi-Token' => STORAGE_API_TOKEN
@@ -164,22 +193,21 @@ class ManageControllerTest extends WebTestCase
               "oauth_version": "2.0"
             }';
 
-        $client->request('PATCH', '/oauth-v2/manage/ex-generic-v2', [], [], $server, $body);
+        $client->request('PATCH', '/oauth-v2/manage/my-component', [], [], $server, $body);
 
         $dbRecord = $this->connection->fetchAll('SELECT * FROM `consumers`')[0];
-        $this->assertEquals('ex-generic-v2', $dbRecord['component_id']);
+        $this->assertEquals('my-component', $dbRecord['component_id']);
         $this->assertEquals('https://oauth.example.com XXX', $dbRecord['auth_url']);
         $this->assertEquals('https://oauth.example.com/token XXX', $dbRecord['token_url']);
         $this->assertEquals('Testing keboola.oauth-v2 XXX', $dbRecord['friendly_name']);
         $this->assertEquals('', $dbRecord['request_token_url']);
         $this->assertEquals('2.0', $dbRecord['oauth_version']);
+        $this->assertEquals('KBC::ComponentEncrypted==', $dbRecord['app_secret_docker']);
         $this->assertArrayHasKey('app_secret', $dbRecord);
-        $this->assertArrayHasKey('app_secret_docker', $dbRecord);
         $this->assertNotEmpty($dbRecord['app_secret']);
-        $this->assertNotEmpty($dbRecord['app_secret_docker']);
 
         $response = json_decode($client->getResponse()->getContent(), true);
-        $this->assertEquals('ex-generic-v2', $response['component_id']);
+        $this->assertEquals('my-component', $response['component_id']);
         $this->assertEquals('123456 XXX', $response['app_key']);
         $this->assertEquals('Testing keboola.oauth-v2 XXX', $response['friendly_name']);
         $this->assertEquals('2.0', $response['oauth_version']);

@@ -17,25 +17,24 @@ class DockerEncryptor
      */
     protected $storageApiService;
 
+    /**
+     * @var ByAppEncryption
+     */
+    protected $encryptor;
+
     public function __construct(StorageApiService $storageApiService)
     {
-        $this->setStorageApiService($storageApiService);
+        $this->storageApiService = $storageApiService;
     }
 
     /**
-     * @param StorageApiService $service
+     * @param ByAppEncryption $encryptor
+     * @return $this
      */
-    public function setStorageApiService(StorageApiService $service)
+    public function setEncryptor($encryptor)
     {
-        $this->storageApiService = $service;
-    }
-
-    /**
-     * @return StorageApiService
-     */
-    public function getStorageApiService()
-    {
-        return $this->storageApiService;
+        $this->encryptor = $encryptor;
+        return $this;
     }
 
     /**
@@ -43,7 +42,10 @@ class DockerEncryptor
      */
     public function getEncryptor()
     {
-        return ByAppEncryption::factory($this->getStorageApiService()->getClient());
+        if (!$this->encryptor) {
+            $this->encryptor = ByAppEncryption::factory($this->storageApiService->getClient());
+        }
+        return $this->encryptor;
     }
 
 }

@@ -35,7 +35,6 @@ services:
       - ./docker/apache/php.ini:/usr/local/etc/php/php.ini
     environment:
       - STORAGE_API_TOKEN
-      - STORAGE_API_URL
       - MANAGE_API_TOKEN
     working_dir: /var/www/html
     entrypoint: sh -c './vendor/bin/phpunit Tests'
