@@ -15,7 +15,6 @@ before_install:
   - cp docker/docker-parameters.yml ./vendor/keboola/syrup/app/config/parameters.yml
   - cp docker/docker-parameters-shared.yml ./vendor/keboola/syrup/app/config/parameters_shared.yml
   - docker-compose run --rm apache composer run-script build-bootstrap
-  - docker/adjust-logs.sh
 
 script:
   - docker-compose run --rm tests
