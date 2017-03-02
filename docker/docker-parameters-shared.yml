@@ -1,0 +1,56 @@
+parameters:
+    database_driver: pdo_mysql
+    database_host: mysql
+    database_port: null
+    database_name: oauth_v2
+    database_user: docker
+    database_password: docker
+    syrup.driver: pdo_mysql
+    syrup.host: mysql
+    syrup.port: ~
+    syrup.name: oauth_v2
+    syrup.user: docker
+    syrup.password: docker
+    locks_db.driver: pdo_mysql
+    locks_db.host: mysql
+    locks_db.port: null
+    locks_db.name: oauth_v2
+    locks_db.user: docker
+    locks_db.password: docker
+    pdo.db_options:
+        db_table: session
+        db_id_col: id
+        db_data_col: value
+        db_time_col: time
+    mailer_transport: smtp
+    mailer_host: localhost
+    mailer_user: null
+    mailer_password: null
+    locale: en
+    secret: whatever
+    kernel.trusted_hosts: null
+    doctrine_migrations_dir: "%kernel.root_dir%/../../../../DoctrineMigrations"
+    storage_api.test.token: dummy
+    storage_api.test.url: 'https://connection.keboola.com'
+    storage_api.url: 'https://connection.keboola.com/'
+    shared_sapi:
+        url: 'https://connection.keboola.com'
+        token: dummy-token
+    uploader:
+        aws-access-key: dummy
+        aws-secret-key: dummy
+        aws-region: us-east-1
+        s3-upload-path: dummy
+        bitly-login: dummy
+        bitly-api-key: dummy
+        url-prefix: 'https://connection.keboola.com/admin/utils/logs?file='
+    queue:
+        sqs: default
+        url: http://syrup-queue.kbc-devel-02.keboola.com/app_dev.php/queue
+        db_table: queues
+
+    elasticsearch:
+        hosts: [vpc-elb-elasticsearch-syrup-test-651343387.us-east-1.elb.amazonaws.com:9200]
+    elasticsearch.index_prefix: devel
+    job_manager:
+        index_prefix: devel
