@@ -9,11 +9,13 @@ before_install:
   - sudo apt-get update
   - docker-compose -v
   - docker-compose build
-  - docker-compose run --rm apache composer install
+  - docker-compose run --rm apache composer install --no-scripts
+  - docker-compose run --rm apache
   - docker-compose run --rm apache mkdir -p /var/www/html/vendor/keboola/syrup/app/cache
   - docker-compose run --rm apache chmod -R 777 /var/www/html/vendor/
   - cp docker/docker-parameters.yml ./vendor/keboola/syrup/app/config/parameters.yml
   - cp docker/docker-parameters-shared.yml ./vendor/keboola/syrup/app/config/parameters_shared.yml
+  - docker-compose run --rm apache composer run-script build-bootstrap
   - docker/adjust-logs.sh
 
 script:
