@@ -10,7 +10,6 @@ before_install:
   - docker-compose -v
   - docker-compose build
   - docker-compose run --rm apache composer install --no-scripts
-  - docker-compose run --rm apache
   - docker-compose run --rm apache mkdir -p /var/www/html/vendor/keboola/syrup/app/cache
   - docker-compose run --rm apache chmod -R 777 /var/www/html/vendor/
   - cp docker/docker-parameters.yml ./vendor/keboola/syrup/app/config/parameters.yml
