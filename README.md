@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/keboola/oauth-v2-bundle.svg?branch=master)](https://travis-ci.org/keboola/oauth-v2-bundle)
+
 ## Local development
 
 See [/docker/README.md](/docker/README.md).
