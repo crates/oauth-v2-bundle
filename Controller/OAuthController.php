@@ -2,12 +2,11 @@
 
 namespace Keboola\OAuthV2Bundle\Controller;
 
-use Keboola\OAuthV2Bundle\Facebook\OAuthQuickbooks;
+use Keboola\OAuthV2Bundle\Quickbooks\OAuthQuickbooks;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
-use Keboola\Syrup\Exception\SyrupComponentException,
-    Keboola\Syrup\Exception\UserException,
-    Keboola\Syrup\Encryption\BaseWrapper;
+use Keboola\Syrup\Exception\UserException;
+use Keboola\Syrup\Encryption\BaseWrapper;
 use Keboola\StorageApi\Client as StorageApi;
 use Symfony\Component\HttpFoundation\JsonResponse,
     Symfony\Component\HttpFoundation\Request,
@@ -47,7 +46,6 @@ class OAuthController extends SessionController
         if ($validateRequest) {
             $this->checkParams($session->getBag());
         }
-
 
         $oAuth = $this->getOAuth($componentId, $session);
 
