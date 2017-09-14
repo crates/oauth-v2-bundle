@@ -181,8 +181,8 @@ class ManageController extends BaseController
      */
     protected function validateApiConfig(\stdClass $api)
     {
-        if (empty($api->oauth_version) || !in_array($api->oauth_version, ['1.0', '2.0', 'facebook'])) {
-            throw new UserException("'oauth_version' must be either '1.0', '2.0' or 'facebook'");
+        if (empty($api->oauth_version) || !in_array($api->oauth_version, ['1.0', '2.0', 'facebook', 'quickbooks'])) {
+            throw new UserException("'oauth_version' must be either '1.0', '2.0', 'facebook' or 'quickbooks'");
         }
 
         if ($api->oauth_version == '1.0' && empty($api->request_token_url)) {

@@ -2,11 +2,11 @@
 
 namespace Keboola\OAuthV2Bundle\Controller;
 
+use Keboola\OAuthV2Bundle\Quickbooks\OAuthQuickbooks;
 use Keboola\StorageApi\Client;
 use Keboola\StorageApi\ClientException;
-use Keboola\Syrup\Exception\SyrupComponentException,
-    Keboola\Syrup\Exception\UserException,
-    Keboola\Syrup\Encryption\BaseWrapper;
+use Keboola\Syrup\Exception\UserException;
+use Keboola\Syrup\Encryption\BaseWrapper;
 use Keboola\StorageApi\Client as StorageApi;
 use Symfony\Component\HttpFoundation\JsonResponse,
     Symfony\Component\HttpFoundation\Request,
@@ -46,7 +46,6 @@ class OAuthController extends SessionController
         if ($validateRequest) {
             $this->checkParams($session->getBag());
         }
-
 
         $oAuth = $this->getOAuth($componentId, $session);
 
@@ -164,11 +163,11 @@ class OAuthController extends SessionController
             return new OAuth20($api);
         case 'facebook':
             return new OAuthFacebook($api);
+        case 'quickbooks':
+            return new OAuthQuickbooks($api);
         default:
             throw new UserException("Unknown oauth version: '{$api['oauth_version']}' ");
         }
-
-        //return $api['oauth_version'] == '1.0' ? new OAuth10($api) : new OAuth20($api) ;
     }
 
     /**
