@@ -21,15 +21,14 @@ class OAuthQuickbooks extends OAuth20
                 $this->tokenUrl,
                 [
                     'form_params' => [
-                        'client_id' => $this->appKey,
-                        'client_secret' => $this->appSecret,
                         'grant_type' => self::GRANT_TYPE,
                         'redirect_uri' => $callbackUrl,
                         'code' => $query['code']
                     ],
                     'headers' => [
                         'Accept' => 'application/json',
-                        'Authorization' => sprintf('Basic %s', base64_encode($this->appKey . ':' . $this->appSecret))
+                        'Authorization' => sprintf('Basic %s', base64_encode($this->appKey . ':' . $this->appSecret)),
+                        'Content-Type' => 'application/x-www-form-urlencoded'
                     ],
                 ]
             );
