@@ -24,9 +24,7 @@ class ManageController extends BaseController
      */
     public function listAction()
     {
-        $conn = $this->getConnection();
-
-        $consumers = $conn->fetchAll(
+        $consumers = $this->getConnection()->fetchAll(
             "SELECT `component_id`, `app_key`, `friendly_name`, `oauth_version`
             FROM `consumers`"
         );
@@ -39,7 +37,6 @@ class ManageController extends BaseController
      */
     public function getAction($componentId)
     {
-        $conn = $this->getConnection();
         $detail = $this->getConnection()->fetchAssoc("SELECT `component_id`, `friendly_name`, `app_key`, `app_secret_docker`, `oauth_version` FROM `consumers` WHERE `component_id` = :componentId", ['componentId' => $componentId]);
 
         // TODO exception?
@@ -284,9 +281,4 @@ class ManageController extends BaseController
     {
         return $this->getDoctrine()->getConnection('oauth_providers');
     }
-
-//     protected function getSelfEncryption()
-//     {
-//         return new SelfEncryption($this->container->getParameter('oauth.defuse_encryption_key'));
-//     }
 }

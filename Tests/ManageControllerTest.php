@@ -5,10 +5,7 @@ namespace Keboola\OAuthV2Bundle\Tests;
 use Doctrine\DBAL\Driver\Connection;
 use Keboola\OAuthV2Bundle\Encryption\ByAppEncryption;
 use Keboola\OAuthV2Bundle\Service\DockerEncryptor;
-use Keboola\StorageApi\Client;
-use Keboola\Syrup\Service\StorageApi\StorageApiService;
 use Keboola\Syrup\Test\WebTestCase;
-use Keboola\Temp\Temp;
 
 class ManageControllerTest extends WebTestCase
 {
@@ -32,7 +29,6 @@ class ManageControllerTest extends WebTestCase
 
     public function testListEmptyAPIsList()
     {
-
         $client = static::createClient();
         $server = [
             'HTTP_X-KBC-ManageApiToken' => MANAGE_API_TOKEN

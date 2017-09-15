@@ -38,6 +38,10 @@ class OAuthController extends SessionController
 
     /**
      * Initialize the call and redirect to authorization website
+     * @param $componentId
+     * @param Request $request
+     * @param bool $validateRequest
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function initAction($componentId, Request $request, $validateRequest = true)
     {
@@ -60,7 +64,7 @@ class OAuthController extends SessionController
 
     public function callbackAction($componentId, Request $request)
     {
-        $session = $this->createSession();
+        $session = $this->container->get('oauth.session');
 
         $oAuth = $this->getOAuth($componentId, $session);
 
@@ -95,7 +99,7 @@ class OAuthController extends SessionController
     {
         $redirect = $this->initAction($componentId, $request, false);
 
-        $session = $this->createSession();
+        $session = $this->container->get('oauth.session');
         $session->set('returnData', true);
         $session->set('returnUrl', null);
 
@@ -153,6 +157,11 @@ class OAuthController extends SessionController
         }
 
         $api['app_secret'] = $this->getEncryptor()->decrypt($api['app_secret']);
+
+        if ($session->getBag()->has('appKey') && $session->getBag()->has('appSecret')) {
+            $api['app_key'] = $session->getBag()->get('appKey');
+            $api['app_secret'] = $session->getBag()->get('appSecret');
+        }
 
         $api = $this->buildAuthUrls($api, $session);
 
