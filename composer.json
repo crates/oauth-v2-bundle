@@ -12,7 +12,7 @@
         "keboola/oauth": "~1.0",
         "keboola/php-utils": "~1.0",
         "guzzlehttp/guzzle": "^6.1",
-        "keboola/syrup-php-client": "^2.1",
+        "keboola/syrup-php-client": "^4.1",
         "facebook/graph-sdk": "~5.0"
     },
     "require-dev": {

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "5a555625d7ee23c025becf6c3587cc10",
+    "content-hash": "e02a6ca5acfb45368f771e77799af034",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -1955,16 +1955,16 @@
         },
         {
             "name": "keboola/syrup-php-client",
-            "version": "2.1.0",
+            "version": "4.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/syrup-php-client.git",
-                "reference": "11b81fe1d784dcd2e1feb42976017b73ea5a8053"
+                "reference": "f6088b251b9c2ec3c3ba49196b75f50cd7b8ad7e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/syrup-php-client/zipball/11b81fe1d784dcd2e1feb42976017b73ea5a8053",
-                "reference": "11b81fe1d784dcd2e1feb42976017b73ea5a8053",
+                "url": "https://api.github.com/repos/keboola/syrup-php-client/zipball/f6088b251b9c2ec3c3ba49196b75f50cd7b8ad7e",
+                "reference": "f6088b251b9c2ec3c3ba49196b75f50cd7b8ad7e",
                 "shasum": ""
             },
             "require": {
@@ -1983,7 +1983,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "description": "Keboola Syrup PHP Client",
-            "time": "2016-01-05T13:14:24+00:00"
+            "time": "2016-10-13T13:53:03+00:00"
         },
         {
             "name": "kriswallsmith/assetic",

@@ -2,6 +2,7 @@
 
 namespace Keboola\OAuthV2Bundle\Controller;
 
+use Keboola\OAuthV2Bundle\Encryption\ByAppEncryption;
 use Keboola\Syrup\Controller\BaseController,
     Keboola\Syrup\Exception\UserException,
     Keboola\Syrup\Encryption\BaseWrapper;
@@ -62,6 +63,7 @@ class ManageController extends BaseController
 
         $api = $this->validateApiConfig(\Keboola\Utils\jsonDecode($request->getContent()));
 
+        /** @var ByAppEncryption $encryptor */
         $encryptor = $this->container->get('oauth.docker_encryptor')->getEncryptor();
         $api->app_secret_docker = $encryptor->encrypt($api->app_secret, $api->component_id, false);
         $api->app_secret = $this->encryptBySelf($api->app_secret);
