@@ -46,7 +46,7 @@ class OAuthControllerTest extends WebTestCase
             'component_id' => $this->testComponentId,
             'friendly_name' => 'Quickbooks Report',
             'app_key' => getenv('APP_KEY'),
-            'auth_url' => 'https://appcenter.intuit.com/connect/oauth2?response_type=code&client_id=%%client_id%%&scope=com.intuit.quickbooks.accounting com.intuit.quickbooks.payment&redirect_uri=%%redirect_uri%%&state=security_token12345',
+            'auth_url' => 'something',
 	        'token_url' => 'https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer',
             'oauth_version' => 'quickbooks'
         ];
@@ -67,6 +67,7 @@ class OAuthControllerTest extends WebTestCase
             'appKey' => '123456',
             'appSecret' => '123456',
             'authorizedFor' => 'test',
+            'authUrl' => 'https://appcenter.intuit.com/connect/oauth2?response_type=code&client_id=%%client_id%%&scope=com.intuit.quickbooks.accounting com.intuit.quickbooks.payment&redirect_uri=%%redirect_uri%%&state=security_token12345',
             'returnUrl' => 'callback'
         ];
 

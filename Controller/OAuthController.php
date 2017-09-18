@@ -159,8 +159,17 @@ class OAuthController extends SessionController
         $api['app_secret'] = $this->getEncryptor()->decrypt($api['app_secret']);
 
         if ($session->getBag()->has('appKey') && $session->getBag()->has('appSecret')) {
-            $api['app_key'] = $session->getBag()->get('appKey');
-            $api['app_secret'] = $session->getBag()->get('appSecret');
+            $api['app_key'] = $session->get('appKey');
+            $api['app_secret'] = $session->get('appSecret');
+        }
+        if ($session->getBag()->has('authUrl')) {
+            $api['auth_url'] = $session->get('authUrl');
+        }
+        if ($session->getBag()->has('tokenUrl')) {
+            $api['token_url'] = $session->get('tokenUrl');
+        }
+        if ($session->getBag()->has('requestTokenUrl')) {
+            $api['request_token_url'] = $session->get('requestTokenUrl');
         }
 
         $api = $this->buildAuthUrls($api, $session);
