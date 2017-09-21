@@ -10,14 +10,15 @@ use Keboola\Syrup\Exception\UserException;
 
 class OAuthFactory
 {
-    public function create($oauthVersion, $params)
+    public function create($params)
     {
+        $oauthVersion = $params['oauth_version'];
         $namespace = 'Keboola\\OAuthV2Bundle\\';
         $oauthName = ucfirst(str_replace('.', '', $oauthVersion));
         if (!in_array($oauthName, ['10', '20'])) {
             $namespace .= $oauthName;
         }
-        $className = $namespace . 'OAuth' . $oauthName;
+        $className = $namespace . '\\OAuth' . $oauthName;
 
         if (class_exists($className)) {
             return new $className($params);

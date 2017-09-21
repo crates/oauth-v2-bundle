@@ -185,7 +185,7 @@ class OAuthController extends SessionController
 
         $api = $this->buildAuthUrls($api, $session);
 
-        return $this->container->get('oauth.factory')->create($api['oauth_version']);
+        return $this->container->get('oauth.factory')->create($api);
     }
 
     /**
