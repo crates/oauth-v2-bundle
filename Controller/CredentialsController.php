@@ -29,8 +29,6 @@ class CredentialsController extends ApiController
                 ['id' => $id, 'componentId' => $componentId]
             );
 
-            var_dump($creds);
-
             if (empty($creds['data'])) {
                 throw new UserException("No data found for api: {$componentId} with id: {$id} in project {$token['owner']['name']}");
             }

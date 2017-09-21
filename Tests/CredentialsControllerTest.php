@@ -54,15 +54,16 @@ class CredentialsControllerTest extends WebTestCase
         $api['app_secret_docker'] = 'not needed';
         $api['app_secret'] = 'empty';
 
-        $customerRows = $this->connection->insert('consumers', (array) $api);
-        echo "inserted {$customerRows} consumers";
+        $this->connection->insert('consumers', (array) $api);
+
+        $storageApiTokenArr = explode('-', STORAGE_API_TOKEN);
 
         $this->credentials = [
             "id" => "123456",
             "component_id" => "leochan.ex-quickbooks",
-            "project_id" => "219",
+            "project_id" => $storageApiTokenArr[0],
             "creator" => "{\"id\":\"1\", \"description\":\"test\"}",
-            "data" => "data",
+            "data" => "KBC::ComponentProjectEncrypted==12345==",
             "authorized_for" => "me",
             "created" => "2017-09-21 03:41:23",
             "auth_url" => "https://anothersubdomain.intuit.com/connect/oauth2?response_type=code&client_id=%%client_id%%&scope=com.intuit.quickbooks.accounting com.intuit.quickbooks.payment&redirect_uri=%%redirect_uri%%&state=security_token12345",
@@ -72,8 +73,7 @@ class CredentialsControllerTest extends WebTestCase
             "app_secret"=> "DhnxbCLaQdk9/o7kMYZP9bYQWGa8ELfF/Z17Qlw1FEzUYQC2O/1UDAgrJmh+Az1KnjENwiRBe8/jhIOMILlYew==",
             "app_secret_docker" => "KBC::ComponentProjectEncrypted==sSfe6fxE651Gjav5oYnXtCR45wJXUN5GUlrSmJbdXAzQg66P/qVBusYgZYjLHtH4amc3hXbk/sj2+vxw2uTbow=="
         ];
-        $credRows = $this->connection->insert('credentials', $this->credentials);
-        echo "inserted {$credRows} credentials";
+        $this->connection->insert('credentials', $this->credentials);
     }
 
     public function testGetAction()
