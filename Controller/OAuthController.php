@@ -88,11 +88,11 @@ class OAuthController extends SessionController
 
         $this->storeResult($result, $componentId, $session);
 
-        if (!$session->getBag()->has('returnUrl') || empty($session->get('returnUrl'))) {
+        if (!$session->getBag()->has('returnUrl') || empty($session->getBag()->get('returnUrl'))) {
             throw new UserException("Cannot redirect; return URL not found");
         }
 
-        return $this->redirect($session->get('returnUrl'));
+        return $this->redirect($session->getBag()->get('returnUrl'));
     }
 
     public function testInitAction($componentId, Request $request)
@@ -135,7 +135,7 @@ class OAuthController extends SessionController
             ]);
             $appEncryptor = ByAppEncryption::factory($client);
             $this->connection->insert('credentials', [
-                'id' => $session->get('id'),
+                'id' => $session->getBag()->get('id'),
                 'component_id' => $componentId,
                 'project_id' => $tokenDetail['owner']['id'],
                 'creator' => json_encode($creator),
@@ -200,7 +200,7 @@ class OAuthController extends SessionController
      */
     protected function buildAuthUrls(array $api, Session $session)
     {
-        $userDataJson = $session->get('userData');
+        $userDataJson = $session->getBag()->get('userData');
 
         $userData = empty($userDataJson) ? [] : jsonDecode($userDataJson, true);
 

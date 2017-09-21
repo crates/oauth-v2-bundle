@@ -96,23 +96,23 @@ class Session
 
     public function set($key, $data)
     {
-        $this->bag->set($key, $data);
+        $this->getBag()->set($key, $data);
     }
 
     public function get($key)
     {
-        return $this->bag->get($key);
+        return $this->getBag()->get($key);
     }
 
     public function setEncrypted($key, $data)
     {
         $encryptedData = $this->encryptor->encrypt($data);
-        $this->bag->set($key, $encryptedData);
+        $this->getBag()->set($key, $encryptedData);
     }
 
     public function getEncrypted($key)
     {
-        $encryptedData = $this->bag->get($key);
+        $encryptedData = $this->getBag()->get($key);
         return $this->encryptor->decrypt($encryptedData);
     }
 

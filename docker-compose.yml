@@ -37,4 +37,4 @@ services:
       - STORAGE_API_TOKEN
       - MANAGE_API_TOKEN
     working_dir: /var/www/html
-    entrypoint: sh -c './vendor/bin/phpunit Tests'
+    command: sh -c './vendor/bin/phpunit Tests'

@@ -7,6 +7,8 @@
 namespace Keboola\OAuthV2Bundle\Tests;
 
 use Doctrine\DBAL\Connection;
+use Keboola\OAuthV2Bundle\Quickbooks\OAuthQuickbooks;
+use Keboola\Syrup\Encryption\BaseWrapper;
 use Keboola\Syrup\Test\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\DomCrawler\Crawler;
@@ -115,16 +117,30 @@ class OAuthControllerTest extends WebTestCase
     {
         $this->client->restart();
         $this->client->followRedirects(false);
+        $container = $this->client->getContainer();
+        /** @var BaseWrapper $encryptor */
+        $encryptor = $container->get('syrup.encryption.base_wrapper');
 
         $params = [
             'id' => '123456',
-            'token' => '123456',
+            'token' => $encryptor->encrypt(STORAGE_API_TOKEN),
             'appKey' => '123456',
             'appSecret' => '123456',
             'authorizedFor' => 'test',
             'authUrl' => 'https://anothersubdomain.intuit.com/connect/oauth2?response_type=code&client_id=%%client_id%%&scope=com.intuit.quickbooks.accounting com.intuit.quickbooks.payment&redirect_uri=%%redirect_uri%%&state=security_token12345',
             'returnUrl' => 'callback'
         ];
+
+        $oauthMock = $this->createMock('Keboola\OAuthV2Bundle\Quickbooks\OauthQuickbooks');
+        $oauthMock->method('createToken')
+            ->willReturn([
+                'access_token' => 'asdfghjkl',
+                'refresh_token' => 'zxcvbnm'
+            ]);
+
+        $oauthFactoryMock = $this->createMock('Keboola\OAuthV2Bundle\Service\OAuthFactory');
+        $oauthFactoryMock->method('create')
+            ->willReturn($oauthMock);
 
         $sessionMock = $this->getMockBuilder('Keboola\OAuthV2Bundle\Storage\Session')
             ->disableOriginalConstructor()
@@ -134,18 +150,17 @@ class OAuthControllerTest extends WebTestCase
         $bagMock->initialize($params);
         $sessionMock->method('getBag')
             ->willReturn($bagMock);
+        $sessionMock->method('getEncrypted')
+            ->willReturn(STORAGE_API_TOKEN);
 
-        $this->client->getContainer()->set('oauth.session', $sessionMock);
-
-        $container = static::$kernel->getContainer();
         $container->set('oauth.session', $sessionMock);
+        $container->set('oauth.factory', $oauthFactoryMock);
 
         $server = [
             'HTTP_X-KBC-ManageApiToken' => MANAGE_API_TOKEN
         ];
 
-        /** @var Crawler $crawler */
-        $crawler = $this->client->request(
+         $this->client->request(
             'GET', '/oauth-v2/authorize/' . $this->testComponentId . '/callback',
             ['code' => 'code123456789'],
             [],
@@ -154,10 +169,13 @@ class OAuthControllerTest extends WebTestCase
 
         /** @var RedirectResponse $response */
         $response = $this->client->getResponse();
+        $this->assertEquals(302, $response->getStatusCode());
 
-        var_dump($response->getStatusCode());
+        $credentials = $this->connection->query("SELECT * FROM credentials")->fetchAll();
 
-//        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertEquals($params['appKey'], $credentials[0]['app_key']);
+        $this->assertEquals($params['appSecret'], $encryptor->decrypt($credentials[0]['app_secret']));
+        $this->assertEquals($params['authUrl'], $credentials[0]['auth_url']);
     }
 }
 
