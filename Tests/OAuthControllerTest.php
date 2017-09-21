@@ -110,5 +110,54 @@ class OAuthControllerTest extends WebTestCase
             $crawler->getNode('html')->nodeValue
         );
     }
+
+    public function testCallbackAction()
+    {
+        $this->client->restart();
+        $this->client->followRedirects(false);
+
+        $params = [
+            'id' => '123456',
+            'token' => '123456',
+            'appKey' => '123456',
+            'appSecret' => '123456',
+            'authorizedFor' => 'test',
+            'authUrl' => 'https://anothersubdomain.intuit.com/connect/oauth2?response_type=code&client_id=%%client_id%%&scope=com.intuit.quickbooks.accounting com.intuit.quickbooks.payment&redirect_uri=%%redirect_uri%%&state=security_token12345',
+            'returnUrl' => 'callback'
+        ];
+
+        $sessionMock = $this->getMockBuilder('Keboola\OAuthV2Bundle\Storage\Session')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $bagMock = new AttributeBag();
+        $bagMock->initialize($params);
+        $sessionMock->method('getBag')
+            ->willReturn($bagMock);
+
+        $this->client->getContainer()->set('oauth.session', $sessionMock);
+
+        $container = static::$kernel->getContainer();
+        $container->set('oauth.session', $sessionMock);
+
+        $server = [
+            'HTTP_X-KBC-ManageApiToken' => MANAGE_API_TOKEN
+        ];
+
+        /** @var Crawler $crawler */
+        $crawler = $this->client->request(
+            'GET', '/oauth-v2/authorize/' . $this->testComponentId . '/callback',
+            ['code' => 'code123456789'],
+            [],
+            $server
+        );
+
+        /** @var RedirectResponse $response */
+        $response = $this->client->getResponse();
+
+        var_dump($response->getStatusCode());
+
+//        $this->assertEquals(302, $response->getStatusCode());
+    }
 }
 

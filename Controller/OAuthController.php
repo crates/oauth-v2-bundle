@@ -114,6 +114,11 @@ class OAuthController extends SessionController
     protected function storeResult($result, $componentId, Session $session)
     {
         $authorizedFor = $session->getBag()->has('authorizedFor') ? $session->get('authorizedFor') : '';
+        $authUrl = $session->getBag()->has('authUrl') ? $session->getBag()->get('authUrl') : null;
+        $tokenUrl = $session->getBag()->has('tokenUrl') ? $session->getBag()->get('tokenUrl') : null;
+        $requestTokenUrl = $session->getBag()->has('requestTokenUrl') ? $session->getBag()->get('requestTokenUrl') : null;
+        $appKey = $session->getBag()->has('appKey') ? $session->getBag()->get('appKey') : null;
+        $appSecret = $session->getBag()->has('appSecret') ? $session->getBag()->get('appSecret') : null;
         $token = $session->getEncrypted('token');
 
         $tokenDetail = $this->getStorageApiToken($token);
@@ -128,15 +133,21 @@ class OAuthController extends SessionController
                 "token" => $token,
                 "url" => $this->container->getParameter('storage_api.url')
             ]);
-            $encryptor = ByAppEncryption::factory($client);
+            $appEncryptor = ByAppEncryption::factory($client);
             $this->connection->insert('credentials', [
                 'id' => $session->get('id'),
                 'component_id' => $componentId,
                 'project_id' => $tokenDetail['owner']['id'],
                 'creator' => json_encode($creator),
-                'data' => $encryptor->encrypt($data, $componentId, true),
+                'data' => $appEncryptor->encrypt($data, $componentId, true),
                 'authorized_for' => $authorizedFor,
-                'created' => date("Y-m-d H:i:s")
+                'created' => date("Y-m-d H:i:s"),
+                'auth_url' => $authUrl,
+                'token_url' => $tokenUrl,
+                'request_token_url' => $requestTokenUrl,
+                'app_key' =>  $appKey,
+                'app_secret' => $this->getEncryptor()->encrypt($appSecret),
+                'app_secret_docker' => $appEncryptor->encrypt($appSecret, $componentId, true),
             ]);
         } catch(\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
             $id = $session->get('id');
@@ -174,18 +185,7 @@ class OAuthController extends SessionController
 
         $api = $this->buildAuthUrls($api, $session);
 
-        switch ($api['oauth_version']) {
-        case '1.0':
-            return new OAuth10($api);
-        case '2.0':
-            return new OAuth20($api);
-        case 'facebook':
-            return new OAuthFacebook($api);
-        case 'quickbooks':
-            return new OAuthQuickbooks($api);
-        default:
-            throw new UserException("Unknown oauth version: '{$api['oauth_version']}' ");
-        }
+        return $this->container->get('oauth.factory')->create($api['oauth_version']);
     }
 
     /**

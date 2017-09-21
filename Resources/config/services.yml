@@ -7,3 +7,5 @@ services:
         class: Keboola\OAuthV2Bundle\Storage\Session
         arguments: ["@syrup.encryption.base_wrapper", %oauth.providers_db.endpoint%, %oauth.providers_db.user%, %oauth.providers_db.password%, %oauth.providers_db.db%]
 
+    oauth.factory:
+        class: Keboola\OAuthV2Bundle\Service\OAuthFactory
