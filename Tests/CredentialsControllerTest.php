@@ -62,7 +62,7 @@ class CredentialsControllerTest extends WebTestCase
             "component_id" => "leochan.ex-quickbooks",
             "project_id" => "219",
             "creator" => "{\"id\":\"1\", \"description\":\"test\"}",
-            "data" => "KBC::ComponentProjectEncrypted==12345==",
+            "data" => "data",
             "authorized_for" => "me",
             "created" => "2017-09-21 03:41:23",
             "auth_url" => "https://anothersubdomain.intuit.com/connect/oauth2?response_type=code&client_id=%%client_id%%&scope=com.intuit.quickbooks.accounting com.intuit.quickbooks.payment&redirect_uri=%%redirect_uri%%&state=security_token12345",
