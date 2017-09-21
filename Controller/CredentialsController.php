@@ -2,7 +2,6 @@
 
 namespace Keboola\OAuthV2Bundle\Controller;
 
-use Keboola\OAuthV2Bundle\Encryption\ByAppEncryption;
 use Keboola\Syrup\Controller\ApiController,
     Keboola\Syrup\Exception\UserException;
 use Symfony\Component\HttpFoundation\Response,
@@ -14,55 +13,62 @@ class CredentialsController extends ApiController
 {
     public function getAction($componentId, $id, Request $request)
     {
-        $token = $this->storageApi->verifyToken();
+        try {
+            $token = $this->storageApi->verifyToken();
 
-        /**
-         * @var \Doctrine\DBAL\Connection
-         */
-        $conn = $this->getConnection();
+            /**
+             * @var \Doctrine\DBAL\Connection
+             */
+            $conn = $this->getConnection();
 
-        $creds = $conn->fetchAssoc("
+            $creds = $conn->fetchAssoc("
                 SELECT `data`, `authorized_for`, `creator`, `created`, `app_key`, `app_secret_docker` 
                 FROM `credentials` 
                 WHERE `project_id` = '{$token['owner']['id']}' AND `id` = :id AND `component_id` = :componentId
             ",
-            ['id' => $id, 'componentId' => $componentId]
-        );
+                ['id' => $id, 'componentId' => $componentId]
+            );
 
-        if (empty($creds['data'])) {
-            throw new UserException("No data found for api: {$componentId} with id: {$id} in project {$token['owner']['name']}");
-        }
+            if (empty($creds['data'])) {
+                throw new UserException("No data found for api: {$componentId} with id: {$id} in project {$token['owner']['name']}");
+            }
 
-        $consumer = $conn->fetchAssoc("
+            $consumer = $conn->fetchAssoc("
                 SELECT `app_key`, `app_secret_docker`, `oauth_version` 
                 FROM `consumers` 
                 WHERE `component_id` = :componentId
             ",
-            ['componentId' => $componentId]
-        );
+                ['componentId' => $componentId]
+            );
 
-        if (empty($consumer)) {
-            throw new UserException("Component '{$componentId}' not found!");
+            if (empty($consumer)) {
+                throw new UserException("Component '{$componentId}' not found!");
+            }
+
+            return new JsonResponse(
+                [
+                    'id' => $id,
+                    'authorizedFor' => $creds['authorized_for'],
+                    'creator' => jsonDecode($creds['creator']),
+                    'created' => $creds['created'],
+                    '#data' => $creds['data'],
+                    'oauthVersion' => $consumer['oauth_version'],
+                    'appKey' => empty($creds['app_key']) ? $consumer['app_key'] : $creds['app_key'],
+                    '#appSecret' => empty($creds['app_secret_docker']) ? $consumer['app_secret_docker'] : $creds['app_secret_docker']
+                ],
+                200,
+                [
+                    "Content-Type" => "application/json",
+                    "Access-Control-Allow-Origin" => "*",
+                    "Connection" => "close"
+                ]
+            );
+        } catch (\Exception $e) {
+            var_dump($e->getMessage());
+            var_dump($e->getFile());
+            var_dump($e->getLine());
+            die;
         }
-
-        return new JsonResponse(
-            [
-                'id' => $id,
-                'authorizedFor' => $creds['authorized_for'],
-                'creator' => jsonDecode($creds['creator']),
-                'created' => $creds['created'],
-                '#data' => $creds['data'],
-                'oauthVersion' => $consumer['oauth_version'],
-                'appKey' => empty($creds['app_key']) ? $consumer['app_key'] : $creds['app_key'],
-                '#appSecret' => empty($creds['app_secret_docker']) ? $consumer['app_secret_docker'] : $creds['app_secret_docker']
-            ],
-            200,
-            [
-                "Content-Type" => "application/json",
-                "Access-Control-Allow-Origin" => "*",
-                "Connection" => "close"
-            ]
-        );
     }
 
     public function deleteAction($componentId, $id)

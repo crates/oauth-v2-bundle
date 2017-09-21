@@ -6,24 +6,27 @@
 
 namespace Keboola\OAuthV2Bundle\Service;
 
+use Keboola\OAuth\OAuth10;
+use Keboola\OAuth\OAuth20;
+use Keboola\OAuthV2Bundle\Facebook\OAuthFacebook;
+use Keboola\OAuthV2Bundle\Quickbooks\OAuthQuickbooks;
 use Keboola\Syrup\Exception\UserException;
 
 class OAuthFactory
 {
     public function create($params)
     {
-        $oauthVersion = $params['oauth_version'];
-        $namespace = 'Keboola\\OAuthV2Bundle\\';
-        $oauthName = ucfirst(str_replace('.', '', $oauthVersion));
-        if (!in_array($oauthName, ['10', '20'])) {
-            $namespace .= $oauthName;
-        }
-        $className = $namespace . '\\OAuth' . $oauthName;
-
-        if (class_exists($className)) {
-            return new $className($params);
-        }
-
-        throw new UserException(sprintf("Unknown oauth version: '%s'", $oauthVersion));
+        switch ($params['oauth_version']) {
+            case '1.0':
+                return new OAuth10($params);
+            case '2.0':
+                return new OAuth20($params);
+            case 'facebook':
+                return new OAuthFacebook($params);
+            case 'quickbooks':
+                return new OAuthQuickbooks($params);
+            default:
+                throw new UserException("Unknown oauth version: '{$params['oauth_version']}'");
+         }
     }
 }
