@@ -6,4 +6,6 @@ wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/d
     && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 dockerize -wait tcp://mysql:3306
 
+sleep 20
+
 ./vendor/bin/phpunit "$@"

@@ -22,6 +22,8 @@ class CredentialsControllerTest extends WebTestCase
     /** @var Client */
     protected $client;
 
+    private $credentials;
+
     public function setUp()
     {
         self::bootKernel(['debug' => true]);
@@ -50,16 +52,12 @@ class CredentialsControllerTest extends WebTestCase
         ];
 
         $api['app_secret_docker'] = 'not needed';
-        $api['app_secret'] = $container
-            ->get('syrup.encryption.base_wrapper')
-            ->encrypt('app_secret');
+        $api['app_secret'] = 'empty';
 
-        $this->connection->insert('consumers', (array) $api);
-    }
+        $customerRows = $this->connection->insert('consumers', (array) $api);
+        echo "inserted {$customerRows} consumers";
 
-    public function testGetAction()
-    {
-        $credentials = [
+        $this->credentials = [
             "id" => "123456",
             "component_id" => "leochan.ex-quickbooks",
             "project_id" => "219",
@@ -74,8 +72,12 @@ class CredentialsControllerTest extends WebTestCase
             "app_secret"=> "DhnxbCLaQdk9/o7kMYZP9bYQWGa8ELfF/Z17Qlw1FEzUYQC2O/1UDAgrJmh+Az1KnjENwiRBe8/jhIOMILlYew==",
             "app_secret_docker" => "KBC::ComponentProjectEncrypted==sSfe6fxE651Gjav5oYnXtCR45wJXUN5GUlrSmJbdXAzQg66P/qVBusYgZYjLHtH4amc3hXbk/sj2+vxw2uTbow=="
         ];
-        $this->connection->insert('credentials', $credentials);
+        $credRows = $this->connection->insert('credentials', $this->credentials);
+        echo "inserted {$credRows} credentials";
+    }
 
+    public function testGetAction()
+    {
         $server = [
             'HTTP_X-StorageApi-Token' => STORAGE_API_TOKEN
         ];
@@ -93,6 +95,7 @@ class CredentialsControllerTest extends WebTestCase
 
         $responseBody = json_decode($response->getContent(), true);
 
+        $credentials = $this->credentials;
         $this->assertEquals($credentials['id'], $responseBody['id']);
         $this->assertEquals($credentials['authorized_for'], $responseBody['authorizedFor']);
         $this->assertEquals($credentials['created'], $responseBody['created']);
