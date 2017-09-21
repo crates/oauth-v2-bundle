@@ -21,8 +21,11 @@ class CredentialsController extends ApiController
          */
         $conn = $this->getConnection();
 
-        $creds = $conn->fetchAssoc(
-            "SELECT `data`, `authorized_for`, `creator`, `created` FROM `credentials` WHERE `project_id` = '{$token['owner']['id']}' AND `id` = :id AND `component_id` = :componentId",
+        $creds = $conn->fetchAssoc("
+                SELECT `data`, `authorized_for`, `creator`, `created`, `app_key`, `app_secret_docker` 
+                FROM `credentials` 
+                WHERE `project_id` = '{$token['owner']['id']}' AND `id` = :id AND `component_id` = :componentId
+            ",
             ['id' => $id, 'componentId' => $componentId]
         );
 
@@ -30,15 +33,17 @@ class CredentialsController extends ApiController
             throw new UserException("No data found for api: {$componentId} with id: {$id} in project {$token['owner']['name']}");
         }
 
-        $consumer = $conn->fetchAssoc(
-            "SELECT `app_key`, `app_secret_docker`, `oauth_version` FROM `consumers` WHERE `component_id` = :componentId",
+        $consumer = $conn->fetchAssoc("
+                SELECT `app_key`, `app_secret_docker`, `oauth_version` 
+                FROM `consumers` 
+                WHERE `component_id` = :componentId
+            ",
             ['componentId' => $componentId]
         );
 
         if (empty($consumer)) {
             throw new UserException("Component '{$componentId}' not found!");
         }
-
 
         return new JsonResponse(
             [
@@ -48,8 +53,8 @@ class CredentialsController extends ApiController
                 'created' => $creds['created'],
                 '#data' => $creds['data'],
                 'oauthVersion' => $consumer['oauth_version'],
-                'appKey' => $consumer['app_key'],
-                '#appSecret' => $consumer['app_secret_docker']
+                'appKey' => empty($creds['app_key']) ? $consumer['app_key'] : $creds['app_key'],
+                '#appSecret' => empty($creds['app_secret_docker']) ? $consumer['app_secret_docker'] : $creds['app_secret_docker']
             ],
             200,
             [

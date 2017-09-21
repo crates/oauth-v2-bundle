@@ -7,13 +7,11 @@
 namespace Keboola\OAuthV2Bundle\Tests;
 
 use Doctrine\DBAL\Connection;
-use Keboola\OAuthV2Bundle\Quickbooks\OAuthQuickbooks;
 use Keboola\Syrup\Encryption\BaseWrapper;
 use Keboola\Syrup\Test\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBag;
 
 class OAuthControllerTest extends WebTestCase
@@ -56,7 +54,7 @@ class OAuthControllerTest extends WebTestCase
         $api['app_secret_docker'] = 'not needed';
         $api['app_secret'] = $container
             ->get('syrup.encryption.base_wrapper')
-            ->encrypt(getenv('APP_SECRET'));
+            ->encrypt('12345');
 
         $this->connection->insert('consumers', (array) $api);
     }
