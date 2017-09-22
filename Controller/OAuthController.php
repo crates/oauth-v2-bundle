@@ -38,6 +38,10 @@ class OAuthController extends SessionController
 
     /**
      * Initialize the call and redirect to authorization website
+     * @param $componentId
+     * @param Request $request
+     * @param bool $validateRequest
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function initAction($componentId, Request $request, $validateRequest = true)
     {
@@ -60,7 +64,7 @@ class OAuthController extends SessionController
 
     public function callbackAction($componentId, Request $request)
     {
-        $session = $this->createSession();
+        $session = $this->container->get('oauth.session');
 
         $oAuth = $this->getOAuth($componentId, $session);
 
@@ -84,18 +88,18 @@ class OAuthController extends SessionController
 
         $this->storeResult($result, $componentId, $session);
 
-        if (!$session->getBag()->has('returnUrl') || empty($session->get('returnUrl'))) {
+        if (!$session->getBag()->has('returnUrl') || empty($session->getBag()->get('returnUrl'))) {
             throw new UserException("Cannot redirect; return URL not found");
         }
 
-        return $this->redirect($session->get('returnUrl'));
+        return $this->redirect($session->getBag()->get('returnUrl'));
     }
 
     public function testInitAction($componentId, Request $request)
     {
         $redirect = $this->initAction($componentId, $request, false);
 
-        $session = $this->createSession();
+        $session = $this->container->get('oauth.session');
         $session->set('returnData', true);
         $session->set('returnUrl', null);
 
@@ -110,6 +114,11 @@ class OAuthController extends SessionController
     protected function storeResult($result, $componentId, Session $session)
     {
         $authorizedFor = $session->getBag()->has('authorizedFor') ? $session->get('authorizedFor') : '';
+        $authUrl = $session->getBag()->has('authUrl') ? $session->getBag()->get('authUrl') : null;
+        $tokenUrl = $session->getBag()->has('tokenUrl') ? $session->getBag()->get('tokenUrl') : null;
+        $requestTokenUrl = $session->getBag()->has('requestTokenUrl') ? $session->getBag()->get('requestTokenUrl') : null;
+        $appKey = $session->getBag()->has('appKey') ? $session->getBag()->get('appKey') : null;
+        $appSecret = $session->getBag()->has('appSecret') ? $session->getBag()->get('appSecret') : null;
         $token = $session->getEncrypted('token');
 
         $tokenDetail = $this->getStorageApiToken($token);
@@ -124,15 +133,21 @@ class OAuthController extends SessionController
                 "token" => $token,
                 "url" => $this->container->getParameter('storage_api.url')
             ]);
-            $encryptor = ByAppEncryption::factory($client);
+            $appEncryptor = ByAppEncryption::factory($client);
             $this->connection->insert('credentials', [
-                'id' => $session->get('id'),
+                'id' => $session->getBag()->get('id'),
                 'component_id' => $componentId,
                 'project_id' => $tokenDetail['owner']['id'],
                 'creator' => json_encode($creator),
-                'data' => $encryptor->encrypt($data, $componentId, true),
+                'data' => $appEncryptor->encrypt($data, $componentId, true),
                 'authorized_for' => $authorizedFor,
-                'created' => date("Y-m-d H:i:s")
+                'created' => date("Y-m-d H:i:s"),
+                'auth_url' => $authUrl,
+                'token_url' => $tokenUrl,
+                'request_token_url' => $requestTokenUrl,
+                'app_key' =>  $appKey,
+                'app_secret' => $this->getEncryptor()->encrypt($appSecret),
+                'app_secret_docker' => $appEncryptor->encrypt($appSecret, $componentId, true),
             ]);
         } catch(\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
             $id = $session->get('id');
@@ -154,20 +169,23 @@ class OAuthController extends SessionController
 
         $api['app_secret'] = $this->getEncryptor()->decrypt($api['app_secret']);
 
+        if ($session->getBag()->has('appKey') && $session->getBag()->has('appSecret')) {
+            $api['app_key'] = $session->getBag()->get('appKey');
+            $api['app_secret'] = $session->getBag()->get('appSecret');
+        }
+        if ($session->getBag()->has('authUrl')) {
+            $api['auth_url'] = $session->getBag()->get('authUrl');
+        }
+        if ($session->getBag()->has('tokenUrl')) {
+            $api['token_url'] = $session->getBag()->get('tokenUrl');
+        }
+        if ($session->getBag()->has('requestTokenUrl')) {
+            $api['request_token_url'] = $session->getBag()->get('requestTokenUrl');
+        }
+
         $api = $this->buildAuthUrls($api, $session);
 
-        switch ($api['oauth_version']) {
-        case '1.0':
-            return new OAuth10($api);
-        case '2.0':
-            return new OAuth20($api);
-        case 'facebook':
-            return new OAuthFacebook($api);
-        case 'quickbooks':
-            return new OAuthQuickbooks($api);
-        default:
-            throw new UserException("Unknown oauth version: '{$api['oauth_version']}' ");
-        }
+        return $this->container->get('oauth.factory')->create($api);
     }
 
     /**
@@ -182,7 +200,7 @@ class OAuthController extends SessionController
      */
     protected function buildAuthUrls(array $api, Session $session)
     {
-        $userDataJson = $session->get('userData');
+        $userDataJson = $session->getBag()->get('userData');
 
         $userData = empty($userDataJson) ? [] : jsonDecode($userDataJson, true);
 

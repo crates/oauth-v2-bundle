@@ -2,9 +2,8 @@
 FROM php:5.6-apache
 MAINTAINER Tomas Kacur <tomas.kacur@keboola.com>
 
-
 RUN apt-get update -q \
-  && apt-get install git libmcrypt-dev unzip -y
+  && apt-get install git wget libmcrypt-dev unzip -y
 
 RUN docker-php-ext-install mcrypt pdo_mysql
 
