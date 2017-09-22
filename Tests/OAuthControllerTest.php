@@ -45,7 +45,7 @@ class OAuthControllerTest extends WebTestCase
         $api = [
             'component_id' => $this->testComponentId,
             'friendly_name' => 'Quickbooks Report',
-            'app_key' => getenv('APP_KEY'),
+            'app_key' => 'abcd56789',
             'auth_url' => 'https://appcenter.intuit.com/connect/oauth2?response_type=code&client_id=%%client_id%%&scope=com.intuit.quickbooks.accounting com.intuit.quickbooks.payment&redirect_uri=%%redirect_uri%%&state=security_token12345',
 	        'token_url' => 'https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer',
             'oauth_version' => 'quickbooks'
@@ -54,7 +54,7 @@ class OAuthControllerTest extends WebTestCase
         $api['app_secret_docker'] = 'not needed';
         $api['app_secret'] = $container
             ->get('syrup.encryption.base_wrapper')
-            ->encrypt('12345');
+            ->encrypt('abcd12345');
 
         $this->connection->insert('consumers', (array) $api);
     }
@@ -111,7 +111,71 @@ class OAuthControllerTest extends WebTestCase
         );
     }
 
-    public function testCallbackAction()
+    public function testCallbackActionSimple()
+    {
+        $this->client->restart();
+        $this->client->followRedirects(false);
+        $container = $this->client->getContainer();
+        /** @var BaseWrapper $encryptor */
+        $encryptor = $container->get('syrup.encryption.base_wrapper');
+
+        $params = [
+            'id' => '123456',
+            'token' => $encryptor->encrypt(STORAGE_API_TOKEN),
+            'authorizedFor' => 'test',
+            'returnUrl' => 'callback'
+        ];
+
+        $oauthMock = $this->createMock('Keboola\OAuthV2Bundle\Quickbooks\OauthQuickbooks');
+        $oauthMock->method('createToken')
+            ->willReturn([
+                'access_token' => 'asdfghjkl',
+                'refresh_token' => 'zxcvbnm'
+            ]);
+
+        $oauthFactoryMock = $this->createMock('Keboola\OAuthV2Bundle\Service\OAuthFactory');
+        $oauthFactoryMock->method('create')
+            ->willReturn($oauthMock);
+
+        $sessionMock = $this->getMockBuilder('Keboola\OAuthV2Bundle\Storage\Session')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $bagMock = new AttributeBag();
+        $bagMock->initialize($params);
+        $sessionMock->method('getBag')
+            ->willReturn($bagMock);
+        $sessionMock->method('getEncrypted')
+            ->willReturn(STORAGE_API_TOKEN);
+
+        $container->set('oauth.session', $sessionMock);
+        $container->set('oauth.factory', $oauthFactoryMock);
+
+        $server = [
+            'HTTP_X-KBC-ManageApiToken' => MANAGE_API_TOKEN
+        ];
+
+        $this->client->request(
+            'GET', '/oauth-v2/authorize/' . $this->testComponentId . '/callback',
+            ['code' => 'code123456789'],
+            [],
+            $server
+        );
+
+        /** @var RedirectResponse $response */
+        $response = $this->client->getResponse();
+        $this->assertEquals(302, $response->getStatusCode());
+
+        $consumers = $this->connection->query("SELECT * FROM consumers")->fetchAll();
+        $credentials = $this->connection->query("SELECT * FROM credentials")->fetchAll();
+
+        $this->assertEquals('abcd56789', $consumers[0]['app_key']);
+        $this->assertEmpty($credentials[0]['app_key']);
+        $this->assertEquals('abcd12345', $encryptor->decrypt($consumers[0]['app_secret']));
+        $this->assertEmpty($encryptor->decrypt($credentials[0]['app_secret']));
+    }
+
+    public function testCallbackActionOverride()
     {
         $this->client->restart();
         $this->client->followRedirects(false);
