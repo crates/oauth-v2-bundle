@@ -14,9 +14,7 @@ class CredentialsController extends ApiController
     public function getAction($componentId, $id, Request $request)
     {
         $token = $this->storageApi->verifyToken();
-
-        $this->getDoctrine();
-
+        
         /**
          * @var \Doctrine\DBAL\Connection
          */
