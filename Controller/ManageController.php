@@ -281,6 +281,6 @@ class ManageController extends BaseController
      */
     protected function getConnection()
     {
-        return $this->getDoctrine()->getConnection('oauth_providers');
+        return $this->getDoctrine()->getConnection();
     }
 }

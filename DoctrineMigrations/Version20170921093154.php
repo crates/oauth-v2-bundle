@@ -15,8 +15,6 @@ class Version20170921093154 extends AbstractMigration
      */
     public function up(Schema $schema)
     {
-        $this->addSql('CREATE DATABASE IF NOT EXISTS `oauth_v2`');
-        $this->addSql('USE `oauth_v2`');
         $this->addSql('
             CREATE TABLE IF NOT EXISTS `consumers` (
                 `component_id` VARCHAR(255) NOT NULL,

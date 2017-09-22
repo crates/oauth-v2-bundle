@@ -7,7 +7,6 @@
 namespace Keboola\OAuthV2Bundle\Tests;
 
 use Doctrine\DBAL\Connection;
-use Keboola\Syrup\Encryption\BaseWrapper;
 use Keboola\Syrup\Test\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -28,7 +27,7 @@ class CredentialsControllerTest extends WebTestCase
     {
         self::bootKernel(['debug' => true]);
         $container = static::$kernel->getContainer();
-        $this->connection = $container->get('doctrine')->getConnection('oauth_providers');
+        $this->connection = $container->get('doctrine')->getConnection();
         $this->connection->exec(
             "TRUNCATE `consumers`"
         );

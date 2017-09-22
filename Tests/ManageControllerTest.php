@@ -21,7 +21,7 @@ class ManageControllerTest extends WebTestCase
                 'debug' => true
             ]
         );
-        $this->connection = static::$kernel->getContainer()->get('doctrine')->getConnection('oauth_providers');
+        $this->connection = static::$kernel->getContainer()->get('doctrine')->getConnection();
         $this->connection->exec(
             "TRUNCATE `consumers`"
         );
