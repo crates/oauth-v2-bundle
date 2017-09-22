@@ -7,6 +7,6 @@ wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/d
 dockerize -wait tcp://mysql:3306
 
 # run migrations
-php vendor/keboola/syrup/app/console --no-interaction doctrine:migrations:migrate
+php vendor/keboola/syrup/app/console --no-interaction --db=oauth_providers doctrine:migrations:migrate
 
 ./vendor/bin/phpunit "$@"
