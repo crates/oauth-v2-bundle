@@ -306,6 +306,6 @@ class OAuthController extends SessionController
      */
     protected function getConnection()
     {
-        return $this->getDoctrine()->getConnection('oauth_providers');
+        return $this->getDoctrine()->getConnection();
     }
 }

@@ -28,7 +28,7 @@ class OAuthControllerTest extends WebTestCase
     {
         self::bootKernel(['debug' => true]);
         $container = static::$kernel->getContainer();
-        $this->connection = $container->get('doctrine')->getConnection('oauth_providers');
+        $this->connection = $container->get('doctrine')->getConnection();
         $this->connection->exec(
             "TRUNCATE `consumers`"
         );
