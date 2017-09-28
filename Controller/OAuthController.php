@@ -146,8 +146,8 @@ class OAuthController extends SessionController
                 'token_url' => $tokenUrl,
                 'request_token_url' => $requestTokenUrl,
                 'app_key' =>  $appKey,
-                'app_secret' => $this->getEncryptor()->encrypt($appSecret),
-                'app_secret_docker' => $appEncryptor->encrypt($appSecret, $componentId, true),
+                'app_secret' => !empty($appSecret) ? $this->getEncryptor()->encrypt($appSecret) : null,
+                'app_secret_docker' => !empty($appSecret) ? $appEncryptor->encrypt($appSecret, $componentId, true) : null,
             ]);
         } catch(\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
             $id = $session->get('id');
