@@ -172,7 +172,7 @@ class OAuthControllerTest extends WebTestCase
         $this->assertEquals('abcd56789', $consumers[0]['app_key']);
         $this->assertEmpty($credentials[0]['app_key']);
         $this->assertEquals('abcd12345', $encryptor->decrypt($consumers[0]['app_secret']));
-        $this->assertEmpty($encryptor->decrypt($credentials[0]['app_secret']));
+        $this->assertEmpty($credentials[0]['app_secret']);
     }
 
     public function testCallbackActionOverride()
