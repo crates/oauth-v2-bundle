@@ -25,16 +25,22 @@ class OAuthFacebook extends AbstractOAuth
      */
     public function createRedirectData($callbackUrl)
     {
+        $state = bin2hex(random_bytes(16));
         $params = [
             'client_id' => $this->appKey,
-            'state' => bin2hex(random_bytes(16)),
+            'state' => $state,
             'response_type' => 'code',
             'redirect_uri' => $callbackUrl,
             'scope' => $this->authUrl
         ];
 
+
         $loginUrl = self::BASE_AUTHORIZATION_URL . '/' . $this->getGraphApiVersion() . '/dialog/oauth?' . http_build_query($params, null, "&");
-        return ['url' => $loginUrl];
+        $sessionData = ['state' => $state];
+        return [
+            'url' => $loginUrl,
+            'sessionData' => $sessionData
+        ];
     }
 
     private function getAccessToken($params) {
@@ -73,16 +79,32 @@ class OAuthFacebook extends AbstractOAuth
         if (empty($query['code'])) {
             throw new UserException("'code' not returned in query from the auth API!");
         }
+
+        $queryState = isset($query['state']) ? $query['state'] : null;
+        if (empty($queryState)) {
+            throw new UserException("'state' not returned in query from the auth API!");
+        }
+        $sessionState = isset($sessionData['state']) ? $sessionData['state'] : null;
+        if (empty($sessionState)) {
+            throw new UserException("'state' param not set in session!");
+        }
+
+        if ($sessionState != $queryState) {
+            throw new UserException("The 'state' param from the URL and session do not match.");
+        }
+
         // Try to get an access token (using the authorization code grant)
         $params = [
             'redirect_uri' => $callbackUrl,
             'code' => $query['code']
         ];
+        // will return short-lived access token
         $accessToken = $this->getAccessToken($params)["access_token"];
         $params = [
             "grant_type" => "fb_exchange_token",
             "fb_exchange_token" => $accessToken
         ];
+        // will return long lived access token
         return $this->getAccessToken($params);
     }
 
