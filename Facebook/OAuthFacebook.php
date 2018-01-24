@@ -8,10 +8,6 @@ use Keboola\Syrup\Exception\ApplicationException;
 use Keboola\OAuth\AbstractOAuth;
 use function Keboola\Utils\jsonDecode;
 
-use Facebook\Facebook;
-use Facebook\Exceptions\FacebookSDKException;
-use Facebook\Exceptions\FacebookResponseException;
-
 class OAuthFacebook extends AbstractOAuth
 {
     const GRANT_TYPE = 'authorization_code';
@@ -62,9 +58,7 @@ class OAuthFacebook extends AbstractOAuth
                 throw new UserException(
                     "OAuth authentication failed[{$errCode}]: {$message}",
                     null,
-                    [
-                        'response' => $e->getResponse()->getBody()
-                    ]
+                    ['response' => $e->getResponse()->getBody()]
                 );
             } else {
                 throw $e;
