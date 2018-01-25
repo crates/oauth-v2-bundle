@@ -26,6 +26,7 @@ this command does the following:
 - set 777 permissions on vendor dir
 - copies both parameters files
 - adjust logs
+- migrates DB - creates DB tables
 
 ### 4. Logging
 Script `./adjust-logs.sh` or `make adjust-logs` command in `docker` dir to adjusts logs to dump the exceptions log directly to the screen. See the `adjust-logs.sh` script for more details. This script is called automatically on `make docker-dev` command;
