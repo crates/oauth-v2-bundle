@@ -31,7 +31,7 @@ adjust-logs:
 	./adjust-logs.sh
 
 migrate-db:
-    docker-compose run --rm apache ./vendor/keboola/syrup/app/console --no-interactions doctrine:migrations:migrate
+	docker-compose run --rm apache ./vendor/keboola/syrup/app/console --no-interactions doctrine:migrations:migrate
 
 docker-dev: clean-all composer-install setup-dirs copy-parameters-yml adjust-logs migrate-db
 
