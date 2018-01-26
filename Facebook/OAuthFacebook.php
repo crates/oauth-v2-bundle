@@ -102,7 +102,10 @@ class OAuthFacebook extends AbstractOAuth
             "fb_exchange_token" => $accessToken
         ];
         // will return long lived access token
-        return $this->getAccessToken($params);
+        $tokenData = $this->getAccessToken($params);
+        return [
+          "token" => $tokenData["access_token"]
+        ];
     }
 
     private function getGraphApiVersion() {
