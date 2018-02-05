@@ -7,6 +7,8 @@
 namespace Keboola\OAuthV2Bundle\Tests;
 
 use Doctrine\DBAL\Connection;
+use Keboola\OAuth\Exception\UserException;
+use Keboola\OAuthV2Bundle\Encryption\ByAppEncryption;
 use Keboola\Syrup\Test\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -102,5 +104,25 @@ class CredentialsControllerTest extends WebTestCase
         $this->assertEquals('quickbooks', $responseBody['oauthVersion']);
         $this->assertEquals($credentials['app_key'], $responseBody['appKey']);
         $this->assertEquals($credentials['app_secret_docker'], $responseBody['#appSecret']);
+    }
+
+    public function testEncryption()
+    {
+        $client = new \Keboola\StorageApi\Client(
+            [
+                'token' => STORAGE_API_TOKEN,
+                'url' => STORAGE_API_URL,
+            ]
+        );
+        $encryption = ByAppEncryption::factory($client);
+        $response = $encryption->encrypt('secret', 'docker-config-encrypt-verify', false);
+        self::assertStringStartsWith('KBC::ComponentEncrypted==', $response);
+        $response = $encryption->encrypt('secret', 'docker-config-encrypt-verify', true);
+        self::assertStringStartsWith('KBC::ComponentProjectEncrypted==', $response);
+        try {
+            $encryption->encrypt('secret', 'docker-encrypt', true);
+            self::fail("Wrong component must fail");
+        } catch (UserException $e) {
+        }
     }
 }
