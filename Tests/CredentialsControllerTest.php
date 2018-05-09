@@ -119,10 +119,5 @@ class CredentialsControllerTest extends WebTestCase
         self::assertStringStartsWith('KBC::ComponentEncrypted==', $response);
         $response = $encryption->encrypt('secret', 'docker-config-encrypt-verify', true);
         self::assertStringStartsWith('KBC::ComponentProjectEncrypted==', $response);
-        try {
-            $encryption->encrypt('secret', 'docker-encrypt', true);
-            self::fail("Wrong component must fail");
-        } catch (UserException $e) {
-        }
     }
 }

@@ -287,15 +287,15 @@ To add `facebook` api component, set `oauth_version` parameter to `facebook` and
 
     + Attributes
 
-        + component_id: `wr-dropbox` (string, required) - Identifier of the KBC component
+        + `component_id`: `wr-dropbox` (string, required) - Identifier of the KBC component
 
-        + friendly_name: `Your Application` (string, required) - Name of the application
+        + `friendly_name`: `Your Application` (string, required) - Name of the application
 
-        + app_key: `as1d23f48` (string, required) - Consumer Key / Client ID
+        + `app_key`: `as1d23f48` (string, required) - Consumer Key / Client ID
 
-        + app_secret: `f86q4f6e4f64q6f486q` (string, required) - Consumer secret / Client secret. Stored encrypted
+        + `app_secret`: `f86q4f6e4f64q6f486q` (string, required) - Consumer secret / Client secret. Stored encrypted
 
-        + auth_url: `https://www.dropbox.com/1/oauth2/authorize?response_type=code&client_id=%%app_key%%&redirect_uri=%%redirect_uri%%&state=%%hash%%` (string, required) - Authentication URL. Required for oauth 1.0 and 2.0
+        + `auth_url`: `https://www.dropbox.com/1/oauth2/authorize?response_type=code&client_id=%%app_key%%&redirect_uri=%%redirect_uri%%&state=%%hash%%` (string, required) - Authentication URL. Required for oauth 1.0 and 2.0
 
             For **1.0**, `%%oauth_token%%` is replaced by `oauth_token` retrieved by initial POST to API.
             For **2.0**, `%%redirect_uri%%` and `%%app_key%%` are replaced by generated redirect URI (to the OAuth application) and `app_key`.
@@ -303,23 +303,23 @@ To add `facebook` api component, set `oauth_version` parameter to `facebook` and
             [1.0 Description](http://oauth.net/core/1.0/#auth_step2)
             [2.0 Description](http://tools.ietf.org/html/rfc6749#section-4.1.1)
 
-        + token_url: `https://api.dropbox.com/1/oauth2/token` (string, required) - Required for oauth 1.0 and 2.0. Access token url. Used in the last step of OAuth process. For **facebook** not required.
+        + `token_url`: `https://api.dropbox.com/1/oauth2/token` (string, required) - Required for oauth 1.0 and 2.0. Access token url. Used in the last step of OAuth process. For **facebook** not required.
 
             [1.0](http://oauth.net/core/1.0/#auth_step3)
             [2.0](https://tools.ietf.org/html/rfc6749#section-3.2)
 
-        + request_token_url: `https://api.twitter.com/oauth/request_token` (string, optional) - Required for OAuth 1.0 only
+        + `request_token_url`: `https://api.twitter.com/oauth/request_token` (string, optional) - Required for OAuth 1.0 only
 
             [1.0](http://oauth.net/core/1.0/#auth_step1)
 
-        + oauth_version: `2.0` (enum[string], required) - OAuth version
+        + `oauth_version`: `2.0` (enum[string], required) - OAuth version
 
             + Members
                 + `1.0` - For OAuth 1.0
                 + `2.0` - For OAuth 2.0
                 + `facebook` - For Facebook OAuth - retrieves facebook long-lived access token
-        + permissions: `pages_show_list, manage_pages` (enum[string], optional) - for facebook oauth, a coma separated list of permissions for facebook
-        + graph_api_version: `v2.8` (enum[string], optional) - for facebook oauth ,version of fb graph api used to authorize an account. Default `v2.8`
+        + `permissions`: `pages_show_list, manage_pages` (enum[string], optional) - for facebook oauth, a coma separated list of permissions for facebook
+        + `graph_api_version`: `v2.8` (enum[string], optional) - for facebook oauth ,version of fb graph api used to authorize an account. Default `v2.8`
 
     + Headers
 
