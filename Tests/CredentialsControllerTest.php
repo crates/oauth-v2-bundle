@@ -64,7 +64,7 @@ class CredentialsControllerTest extends WebTestCase
             "component_id" => "leochan.ex-quickbooks",
             "project_id" => $storageApiTokenArr[0],
             "creator" => "{\"id\":\"1\", \"description\":\"test\"}",
-            "data" => "KBC::ComponentProjectEncrypted==12345==",
+            "data" => "KBC::ProjectSecure::12345==",
             "authorized_for" => "me",
             "created" => "2017-09-21 03:41:23",
             "auth_url" => "https://anothersubdomain.intuit.com/connect/oauth2?response_type=code&client_id=%%client_id%%&scope=com.intuit.quickbooks.accounting com.intuit.quickbooks.payment&redirect_uri=%%redirect_uri%%&state=security_token12345",
@@ -72,7 +72,7 @@ class CredentialsControllerTest extends WebTestCase
             "request_token_url" => null,
             "app_key" => "123456",
             "app_secret"=> "DhnxbCLaQdk9/o7kMYZP9bYQWGa8ELfF/Z17Qlw1FEzUYQC2O/1UDAgrJmh+Az1KnjENwiRBe8/jhIOMILlYew==",
-            "app_secret_docker" => "KBC::ComponentProjectEncrypted==sSfe6fxE651Gjav5oYnXtCR45wJXUN5GUlrSmJbdXAzQg66P/qVBusYgZYjLHtH4amc3hXbk/sj2+vxw2uTbow=="
+            "app_secret_docker" => "KBC::ProjectSecure::sSfe6fxE651Gjav5oYnXtCR45wJXUN5GUlrSmJbdXAzQg66P/qVBusYgZYjLHtH4amc3hXbk/sj2+vxw2uTbow=="
         ];
         $this->connection->insert('credentials', $this->credentials);
     }
@@ -116,8 +116,8 @@ class CredentialsControllerTest extends WebTestCase
         );
         $encryption = ByAppEncryption::factory($client);
         $response = $encryption->encrypt('secret', 'docker-config-encrypt-verify', false);
-        self::assertStringStartsWith('KBC::ComponentEncrypted==', $response);
+        self::assertStringStartsWith('KBC::ComponentSecure::', $response);
         $response = $encryption->encrypt('secret', 'docker-config-encrypt-verify', true);
-        self::assertStringStartsWith('KBC::ComponentProjectEncrypted==', $response);
+        self::assertStringStartsWith('KBC::ProjectSecure::', $response);
     }
 }
