@@ -66,7 +66,7 @@ class ManageControllerTest extends WebTestCase
         $encryptorStub->expects($this->atLeastOnce())
             ->method("encrypt")
             ->with("654321", "my-component", false)
-            ->will($this->returnValue('KBC::ComponentEncrypted=='));
+            ->will($this->returnValue('KBC::ComponentSecure::'));
         $encryptorService->setEncryptor($encryptorStub);
 
         $client->request('POST', '/oauth-v2/manage', [], [], $server, $body);
@@ -80,7 +80,7 @@ class ManageControllerTest extends WebTestCase
         $this->assertEquals('Testing keboola.oauth-v2', $dbRecord['friendly_name']);
         $this->assertEquals('', $dbRecord['request_token_url']);
         $this->assertEquals('2.0', $dbRecord['oauth_version']);
-        $this->assertEquals('KBC::ComponentEncrypted==', $dbRecord['app_secret_docker']);
+        $this->assertEquals('KBC::ComponentSecure::', $dbRecord['app_secret_docker']);
         $this->assertArrayHasKey('app_secret', $dbRecord);
         $this->assertNotEmpty($dbRecord['app_secret']);
     }
@@ -173,7 +173,7 @@ class ManageControllerTest extends WebTestCase
         $encryptorStub->expects($this->atLeastOnce())
             ->method("encrypt")
             ->with("654321 XXX", "my-component", false)
-            ->will($this->returnValue('KBC::ComponentEncrypted=='));
+            ->will($this->returnValue('KBC::ComponentSecure::'));
         $encryptorService->setEncryptor($encryptorStub);
 
         $server = [
@@ -198,7 +198,7 @@ class ManageControllerTest extends WebTestCase
         $this->assertEquals('Testing keboola.oauth-v2 XXX', $dbRecord['friendly_name']);
         $this->assertEquals('', $dbRecord['request_token_url']);
         $this->assertEquals('2.0', $dbRecord['oauth_version']);
-        $this->assertEquals('KBC::ComponentEncrypted==', $dbRecord['app_secret_docker']);
+        $this->assertEquals('KBC::ComponentSecure::', $dbRecord['app_secret_docker']);
         $this->assertArrayHasKey('app_secret', $dbRecord);
         $this->assertNotEmpty($dbRecord['app_secret']);
 
