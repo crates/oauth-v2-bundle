@@ -1,4 +1,3 @@
-## -*- docker-image-name: "oauth-apache" -*-
 FROM php:5.6-apache
 MAINTAINER Tomas Kacur <tomas.kacur@keboola.com>
 
@@ -16,4 +15,3 @@ RUN cd \
   && curl -sS https://getcomposer.org/installer | php \
   && mv /root/composer.phar /usr/local/bin/composer
 
-# RUN composer install

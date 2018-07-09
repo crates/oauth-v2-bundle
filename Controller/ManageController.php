@@ -194,6 +194,7 @@ class ManageController extends BaseController
          * 2 = required for 2.0
          * 3 = required for 1.0 & 2.0 & facebook
          * 4 = required for 1.0 & 2.0 but not for facebook
+         * 5 = required for 1.0 with RSA signature method
          */
         $cols = [
             'component_id'=> 3,
@@ -202,9 +203,9 @@ class ManageController extends BaseController
             'request_token_url'=> 1,
             'app_key'=> 3,
             'app_secret'=> 3,
-//             'app_secret_docker'=> 3, // created in the ctrlr
             'friendly_name'=> 3,
-            'oauth_version'=> 3
+            'oauth_version'=> 3,
+            'rsa_public_key'=> 5,
         ];
 
         $validated = new \stdClass;
@@ -216,6 +217,7 @@ class ManageController extends BaseController
                 || ($flag == 1 && $api->oauth_version == '1.0')
                 || ($flag == 2 && $api->oauth_version == '2.0')
                 || ($flag == 4 && $api->oauth_version != 'facebook')
+                || ($flag == 5 && $api->oauth_version == '1.0-rsa')
             ) {
                 if (empty($api->{$col})) {
                     throw new UserException("Missing parameter '{$col}'.");
