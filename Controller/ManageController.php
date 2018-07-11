@@ -192,7 +192,7 @@ class ManageController extends BaseController
          * 0 = optional
          * 1 = required for 1.0
          * 2 = required for 2.0
-         * 3 = required for 1.0 & 2.0 & facebook
+         * 3 = required for all
          * 4 = required for 1.0 & 2.0 but not for facebook
          * 5 = required for 1.0 with RSA signature method
          */
@@ -205,7 +205,7 @@ class ManageController extends BaseController
             'app_secret'=> 3,
             'friendly_name'=> 3,
             'oauth_version'=> 3,
-            'rsa_public_key'=> 5,
+            'rsa_private_key'=> 5,
         ];
 
         $validated = new \stdClass;
@@ -243,6 +243,7 @@ class ManageController extends BaseController
                 $validated->{$versionDbAlias} = $api->graph_api_version;
             }
         }
+
         return $validated;
     }
 

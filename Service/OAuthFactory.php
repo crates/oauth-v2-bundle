@@ -19,6 +19,9 @@ class OAuthFactory
         switch ($params['oauth_version']) {
             case '1.0':
                 return new OAuth10($params);
+            case '1.0-rsa':
+                $params['signature_method'] = OAUTH_SIG_METHOD_RSASHA1;
+                return new OAuth10($params);
             case '2.0':
                 return new OAuth20($params);
             case 'facebook':

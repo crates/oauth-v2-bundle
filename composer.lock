@@ -1579,16 +1579,16 @@
         },
         {
             "name": "keboola/oauth",
-            "version": "1.1.0",
+            "version": "1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/php-oauth.git",
-                "reference": "e9a63a61d418c6e400766c53037a1de51a213527"
+                "reference": "6c62e85133adc0d8207aa79a36f281a78dbaa607"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/php-oauth/zipball/e9a63a61d418c6e400766c53037a1de51a213527",
-                "reference": "e9a63a61d418c6e400766c53037a1de51a213527",
+                "url": "https://api.github.com/repos/keboola/php-oauth/zipball/6c62e85133adc0d8207aa79a36f281a78dbaa607",
+                "reference": "6c62e85133adc0d8207aa79a36f281a78dbaa607",
                 "shasum": ""
             },
             "require": {
@@ -1621,7 +1621,7 @@
             "keywords": [
                 "oauth"
             ],
-            "time": "2018-07-09T09:58:49+00:00"
+            "time": "2018-07-11T12:02:19+00:00"
         },
         {
             "name": "keboola/php-encryption",

@@ -162,7 +162,12 @@ class OAuthController extends SessionController
      */
     protected function getOAuth($componentId, Session $session)
     {
-        $api = $this->connection->fetchAssoc("SELECT `app_key`, `app_secret`, `auth_url`, `token_url`, `request_token_url`, `oauth_version` FROM `consumers` WHERE `component_id` = :componentId", ['componentId' => $componentId]);
+        $api = $this->connection->fetchAssoc("
+            SELECT `app_key`, `app_secret`, `auth_url`, `token_url`, `request_token_url`, `oauth_version`, `rsa_private_key` 
+            FROM `consumers` 
+            WHERE `component_id` = :componentId
+        ", ['componentId' => $componentId]);
+
         if (empty($api)) {
             throw new UserException("Api '{$componentId}' details not found in the OAuth consumer database");
         }

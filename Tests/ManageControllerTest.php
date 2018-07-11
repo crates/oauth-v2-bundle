@@ -98,7 +98,8 @@ class ManageControllerTest extends WebTestCase
                 \'\',
                 \'\',
                 \'Testing keboola.oauth-v2\',
-                \'2.0\'
+                \'2.0\',
+                \'\'
             )
         '
         );
@@ -129,7 +130,8 @@ class ManageControllerTest extends WebTestCase
                 \'\',
                 \'\',
                 \'Testing keboola.oauth-v2\',
-                \'2.0\'
+                \'2.0\',
+                \'\'
             )
         '
         );
@@ -158,7 +160,8 @@ class ManageControllerTest extends WebTestCase
                 \'\',
                 \'\',
                 \'Testing keboola.oauth-v2\',
-                \'2.0\'
+                \'2.0\',
+                \'\'
             )
         '
         );
