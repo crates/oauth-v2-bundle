@@ -47,8 +47,6 @@ class OAuth10RsaTest extends WebTestCase
             'rsa_private_key' => file_get_contents(__DIR__ . '/privatekey.pem'),
         ];
 
-        var_dump($api);
-
         $this->connection->insert('consumers', (array) $api);
     }
 
@@ -73,7 +71,21 @@ class OAuth10RsaTest extends WebTestCase
         $sessionMock->method('getBag')
             ->willReturn($bagMock);
 
+        $oauthMock = $this->createMock('Keboola\OAuth\OAuth10');
+        $oauthMock->method('createRedirectData')
+            ->willReturn([
+                'url' => str_replace('%%oauth_token%%', 'auth_token_123456', $params['authUrl']),
+                'sessionData' => [
+                    'token' => 'auth_token_123456'
+                ]
+            ]);
+
+        $oauthFactoryMock = $this->createMock('Keboola\OAuthV2Bundle\Service\OAuthFactory');
+        $oauthFactoryMock->method('create')
+            ->willReturn($oauthMock);
+
         $this->client->getContainer()->set('oauth.session', $sessionMock);
+        $this->client->getContainer()->set('oauth.factory', $oauthFactoryMock);
 
         $container = static::$kernel->getContainer();
         $container->set('oauth.session', $sessionMock);
@@ -95,16 +107,12 @@ class OAuth10RsaTest extends WebTestCase
 
         $this->assertEquals(302, $response->getStatusCode());
         $this->assertContains(
-            'Redirecting to https://anothersubdomain.intuit.com/connect/oauth2',
-            $crawler->getNode('html')->nodeValue
-        );
-        $this->assertContains(
-            'client_id=123456',
+            'Redirecting to https://api.xero.com/oauth/Authorize?oauth_token=auth_token_123456',
             $crawler->getNode('html')->nodeValue
         );
     }
 
-    public function testCallbackActionSimple()
+    public function testCallbackAction()
     {
         $this->client->restart();
         $this->client->followRedirects(false);
@@ -168,4 +176,3 @@ class OAuth10RsaTest extends WebTestCase
         $this->assertEmpty($credentials[0]['app_secret']);
     }
 }
-
