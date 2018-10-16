@@ -145,6 +145,41 @@ class ManageControllerTest extends WebTestCase
         $this->assertEquals('2.0', $response['oauth_version']);
     }
 
+    public function testGetAPIDecrypt()
+    {
+        $client = static::createClient();
+        $encryption = $client->getContainer()->get('syrup.encryption.base_wrapper');
+        $appSecretEncrypted = $encryption->encrypt('big-secret-5678');
+
+        $this->connection->query(
+            "INSERT INTO `consumers` VALUES (
+                'my-component',
+                'https://oauth.example.com',
+                'https://oauth.example.com/token',
+                '',
+                '123456',
+                '{$appSecretEncrypted}',
+                '',
+                'Testing keboola.oauth-v2',
+                '2.0'
+            )"
+        );
+
+        $server = [
+            'HTTP_X-KBC-ManageApiToken' => MANAGE_API_TOKEN
+        ];
+        $client->request('GET', '/oauth-v2/manage/my-component/decrypt', [], [], $server);
+        $response = json_decode($client->getResponse()->getContent(), true);
+
+        $this->assertEquals('my-component', $response['component_id']);
+        $this->assertEquals('https://oauth.example.com', $response['auth_url']);
+        $this->assertEquals('https://oauth.example.com/token', $response['token_url']);
+        $this->assertEquals('123456', $response['app_key']);
+        $this->assertEquals('big-secret-5678', $response['app_secret']);
+        $this->assertEquals('Testing keboola.oauth-v2', $response['friendly_name']);
+        $this->assertEquals('2.0', $response['oauth_version']);
+    }
+
     public function testUpdateAPI()
     {
         $this->connection->query(
