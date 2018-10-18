@@ -55,6 +55,30 @@ class ManageController extends BaseController
         return new JsonResponse($detail, 200, $this->defaultResponseHeaders);
     }
 
+    public function getDecryptAction($componentId)
+    {
+        $consumer = $this->getConnection()->fetchAssoc(
+            "SELECT * FROM `consumers` WHERE `component_id` = :componentId",
+            ['componentId' => $componentId]
+        );
+
+        if (empty($consumer)) {
+            return new JsonResponse(
+                [
+                    'error' => "Component '{$componentId}' not found.",
+                    'code' => 'notFound'
+                ],
+                404,
+                $this->defaultResponseHeaders
+            );
+        }
+
+        $appSecretPlain = $this->getEncryptor()->decrypt($consumer['app_secret']);
+        $response = array_merge($consumer, ['app_secret' => $appSecretPlain]);
+
+        return new JsonResponse($response, 200, $this->defaultResponseHeaders);
+    }
+
     /**
      * Add API to `consumers` and encrypt the secret
      */
