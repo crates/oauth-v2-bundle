@@ -120,4 +120,36 @@ class CredentialsControllerTest extends WebTestCase
         $response = $encryption->encrypt('secret', 'docker-config-encrypt-verify', true);
         self::assertStringStartsWith('KBC::ProjectSecure::', $response);
     }
+
+    public function testGetRaw()
+    {
+        $server = [
+            'HTTP_X-StorageApi-Token' => STORAGE_API_TOKEN
+        ];
+
+        $this->client->request(
+            'GET', '/oauth-v2/credentials/' . $this->testComponentId . '/123456/raw',
+            [],
+            [],
+            $server
+        );
+
+        /** @var RedirectResponse $response */
+        $response = $this->client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $responseBody = json_decode($response->getContent(), true);
+
+        $credentials = $this->credentials;
+        $this->assertEquals($credentials['id'], $responseBody['id']);
+        $this->assertEquals($credentials['component_id'], $responseBody['component_id']);
+        $this->assertEquals($credentials['project_id'], $responseBody['project_id']);
+        $this->assertEquals($credentials['data'], $responseBody['data']);
+        $this->assertEquals($credentials['authorized_for'], $responseBody['authorized_for']);
+        $this->assertEquals($credentials['creator'], $responseBody['creator']);
+        $this->assertEquals($credentials['created'], $responseBody['created']);
+        $this->assertEquals($credentials['auth_url'], $responseBody['auth_url']);
+        $this->assertEquals($credentials['app_key'], $responseBody['app_key']);
+        $this->assertEquals($credentials['app_secret_docker'], $responseBody['app_secret_docker']);
+    }
 }

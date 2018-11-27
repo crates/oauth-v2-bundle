@@ -63,6 +63,34 @@ class CredentialsController extends ApiController
         );
     }
 
+    public function getRawAction($componentId, $id, Request $request)
+    {
+        $token = $this->storageApi->verifyToken();
+        /** @var \Doctrine\DBAL\Connection */
+        $conn = $this->getConnection();
+
+        $creds = $conn->fetchAssoc("
+            SELECT * FROM `credentials` 
+            WHERE `project_id` = '{$token['owner']['id']}' AND `id` = :id AND `component_id` = :componentId
+        ",
+            ['id' => $id, 'componentId' => $componentId]
+        );
+
+        if (empty($creds['data'])) {
+            throw new UserException("No data found for api: {$componentId} with id: {$id} in project {$token['owner']['name']}");
+        }
+
+        return new JsonResponse(
+            $creds,
+            200,
+            [
+                "Content-Type" => "application/json",
+                "Access-Control-Allow-Origin" => "*",
+                "Connection" => "close"
+            ]
+        );
+    }
+
     public function deleteAction($componentId, $id)
     {
         $token = $this->storageApi->verifyToken();
