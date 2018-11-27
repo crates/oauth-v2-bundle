@@ -1,0 +1,2 @@
+CREATE DATABASE IF NOT EXISTS `oauth_v2`;
+USE `oauth_v2`;
