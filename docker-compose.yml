@@ -17,6 +17,7 @@ services:
     build: "docker/mysql"
     volumes:
       - ./docker/.mysql-datadir/:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: oauth_v2
