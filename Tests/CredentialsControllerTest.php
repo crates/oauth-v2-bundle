@@ -7,11 +7,10 @@
 namespace Keboola\OAuthV2Bundle\Tests;
 
 use Doctrine\DBAL\Connection;
-use Keboola\OAuth\Exception\UserException;
 use Keboola\OAuthV2Bundle\Encryption\ByAppEncryption;
 use Keboola\Syrup\Test\WebTestCase;
 use Symfony\Bundle\FrameworkBundle\Client;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class CredentialsControllerTest extends WebTestCase
 {
@@ -90,7 +89,7 @@ class CredentialsControllerTest extends WebTestCase
             $server
         );
 
-        /** @var RedirectResponse $response */
+        /** @var Response $response */
         $response = $this->client->getResponse();
         $this->assertEquals(200, $response->getStatusCode());
 
@@ -121,7 +120,7 @@ class CredentialsControllerTest extends WebTestCase
         self::assertStringStartsWith('KBC::ProjectSecure::', $response);
     }
 
-    public function testGetRaw()
+    public function testGetRawAction()
     {
         $server = [
             'HTTP_X-StorageApi-Token' => STORAGE_API_TOKEN
@@ -134,7 +133,7 @@ class CredentialsControllerTest extends WebTestCase
             $server
         );
 
-        /** @var RedirectResponse $response */
+        /** @var Response $response */
         $response = $this->client->getResponse();
         $this->assertEquals(200, $response->getStatusCode());
 
@@ -151,5 +150,65 @@ class CredentialsControllerTest extends WebTestCase
         $this->assertEquals($credentials['auth_url'], $responseBody['auth_url']);
         $this->assertEquals($credentials['app_key'], $responseBody['app_key']);
         $this->assertEquals($credentials['app_secret_docker'], $responseBody['app_secret_docker']);
+    }
+
+    public function testAddAction()
+    {
+        $server = [
+            'HTTP_X-StorageApi-Token' => STORAGE_API_TOKEN
+        ];
+
+        $id = uniqid('oauth-test');
+
+        $body = sprintf('{
+              "id": "%s",
+              "data": {
+                "access_token": "1234"
+              },
+              "authorizedFor": "test",
+              "authUrl": "https://oauth.example.com",
+              "appKey": "12345",
+              "appSecret": "5678",
+              "appSecretDocker": "KBC::ComponentSecure::5678"
+            }', $id);
+
+        $this->client->request(
+            'POST', '/oauth-v2/credentials/' . $this->testComponentId,
+            [],
+            [],
+            $server,
+            $body
+        );
+
+        /** @var Response $response */
+        $response = $this->client->getResponse();
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $responseBody = json_decode($response->getContent(), true);
+
+        $this->assertEquals('KBC::ComponentSecure::5678', $responseBody['#appSecret']);
+        $this->assertEquals('12345', $responseBody['appKey']);
+        $this->assertEquals($id, $responseBody['id']);
+        $this->assertEquals('test', $responseBody['authorizedFor']);
+
+        // get raw credentials
+        $this->client->request(
+            'GET',
+            sprintf('/oauth-v2/credentials/%s/%s/raw', $this->testComponentId, $id),
+            [],
+            [],
+            $server
+        );
+
+        /** @var Response $response */
+        $response = $this->client->getResponse();
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $responseBody = json_decode($response->getContent(), true);
+
+        $this->assertEquals('KBC::ComponentSecure::5678', $responseBody['app_secret_docker']);
+        $this->assertEquals('12345', $responseBody['app_key']);
+        $this->assertEquals($id, $responseBody['id']);
+        $this->assertEquals('test', $responseBody['authorized_for']);
     }
 }

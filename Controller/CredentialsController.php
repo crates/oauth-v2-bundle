@@ -2,6 +2,7 @@
 
 namespace Keboola\OAuthV2Bundle\Controller;
 
+use Keboola\OAuthV2Bundle\Encryption\ByAppEncryption;
 use Keboola\Syrup\Controller\ApiController,
     Keboola\Syrup\Exception\UserException;
 use Symfony\Component\HttpFoundation\Response,
@@ -177,6 +178,14 @@ class CredentialsController extends ApiController
         $dataEncrypted = $encryptor->encrypt($data, $componentId, true);
         $created = date("Y-m-d H:i:s");
 
+        $appEncryptor = ByAppEncryption::factory($this->storageApi);
+
+        $authUrl = !empty($credentials->authUrl) ? $credentials->authUrl : null;
+        $appKey = !empty($credentials->appKey) ? $credentials->appKey : null;
+        $appSecret = !empty($credentials->appSecret) ? $this->getEncryptor()->encrypt($credentials->appSecret) : null;
+        $appSecretDocker = !empty($credentials->appSecret) ? $appEncryptor->encrypt($credentials->appSecret, $componentId, true) : null;
+        $appSecretDockerFinal = !empty($credentials->appSecretDocker) ? $credentials->appSecretDocker : $appSecretDocker;
+
         try {
             $conn->insert('credentials', [
                 'id' => $credentials->id,
@@ -185,7 +194,11 @@ class CredentialsController extends ApiController
                 'creator' => json_encode($creator),
                 'data' => $dataEncrypted,
                 'authorized_for' => $credentials->authorizedFor,
-                'created' => $created
+                'created' => $created,
+                'auth_url' => $authUrl,
+                'app_key' =>  $appKey,
+                'app_secret' => $appSecret,
+                'app_secret_docker' => $appSecretDockerFinal,
             ]);
         } catch(\Doctrine\DBAL\Exception\UniqueConstraintViolationException $e) {
             throw new UserException("Credentials '{$credentials->id}' for component '{$componentId}' already exist!");
@@ -199,8 +212,8 @@ class CredentialsController extends ApiController
                 'created' => $created,
                 '#data' => $dataEncrypted,
                 'oauthVersion' => $consumer['oauth_version'],
-                'appKey' => $consumer['app_key'],
-                '#appSecret' => $consumer['app_secret_docker']
+                'appKey' => $appKey ?: $consumer['app_key'],
+                '#appSecret' => $appSecretDockerFinal ?: $consumer['app_secret_docker']
             ],
             201,
             [
@@ -221,11 +234,19 @@ class CredentialsController extends ApiController
 
     private function validateCredentials(\stdClass $credentials)
     {
-        $cols = ['id', 'data', 'authorizedFor'];
+        $cols = [
+            'id' => true,
+            'data' => true,
+            'authorizedFor' => true,
+            'authUrl' => false,
+            'appKey' => false,
+            'appSecret' => false,
+            'appSecretDocker' => false
+        ];
 
         $validated = new \stdClass();
-        foreach ($cols as $col) {
-            if (empty($credentials->{$col})) {
+        foreach ($cols as $col => $required) {
+            if (empty($credentials->{$col}) && $required) {
                 throw new UserException("Missing parameter '{$col}'.");
             }
             $validated->{$col} = $credentials->{$col};
