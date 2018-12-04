@@ -152,7 +152,7 @@ class CredentialsControllerTest extends WebTestCase
         $this->assertEquals($credentials['app_secret_docker'], $responseBody['app_secret_docker']);
     }
 
-    public function testAddAction()
+    public function testAddActionCustom()
     {
         $server = [
             'HTTP_X-StorageApi-Token' => STORAGE_API_TOKEN
@@ -210,5 +210,39 @@ class CredentialsControllerTest extends WebTestCase
         $this->assertEquals('12345', $responseBody['app_key']);
         $this->assertEquals($id, $responseBody['id']);
         $this->assertEquals('test', $responseBody['authorized_for']);
+    }
+
+    public function testAddAction()
+    {
+        $server = [
+            'HTTP_X-StorageApi-Token' => STORAGE_API_TOKEN
+        ];
+
+        $id = uniqid('oauth-test');
+
+        $body = sprintf('{
+              "id": "%s",
+              "data": {
+                "access_token": "1234"
+              },
+              "authorizedFor": "test"
+            }', $id);
+
+        $this->client->request(
+            'POST', '/oauth-v2/credentials/' . $this->testComponentId,
+            [],
+            [],
+            $server,
+            $body
+        );
+
+        /** @var Response $response */
+        $response = $this->client->getResponse();
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $responseBody = json_decode($response->getContent(), true);
+
+        $this->assertEquals($id, $responseBody['id']);
+        $this->assertEquals('test', $responseBody['authorizedFor']);
     }
 }

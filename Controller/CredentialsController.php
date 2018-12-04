@@ -156,6 +156,7 @@ class CredentialsController extends ApiController
     public function addAction($componentId, Request $request)
     {
         $credentials = $this->validateCredentials(jsonDecode($request->getContent()));
+
         $conn = $this->getConnection();
 
         $consumer = $conn->fetchAssoc(
@@ -249,7 +250,9 @@ class CredentialsController extends ApiController
             if (empty($credentials->{$col}) && $required) {
                 throw new UserException("Missing parameter '{$col}'.");
             }
-            $validated->{$col} = $credentials->{$col};
+            if (!empty($credentials->{$col})) {
+                $validated->{$col} = $credentials->{$col};
+            }
         }
 
         return $validated;
